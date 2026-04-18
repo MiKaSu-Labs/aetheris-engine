@@ -92,13 +92,13 @@ extern bool                 ae_no_console;
 ae_error_t ae_init(void);
 
 /**
- * ae_main() — replaces public static void main(String[] args).
+ * ae_main() - replaces public static void main(String[] args).
  * argc/argv are forwarded from the process entry point.
  */
 ae_error_t ae_main(int argc, char **argv);
 
 /**
- * ae_shutdown() — registered as a shutdown hook; safe to call manually.
+ * ae_shutdown() - registered as a shutdown hook; safe to call manually.
  */
 void ae_shutdown(void);
 
