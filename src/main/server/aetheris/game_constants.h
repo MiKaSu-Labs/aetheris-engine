@@ -16,7 +16,7 @@ extern "C" {
 #endif
 
 /* =========================================================================
- * Mutable statics  (Java: public static — no final)
+ * Mutable statics  (Java: public static - no final)
  * ====================================================================== */
 
 extern char  ae_version[16];        /* "4.0.0"          */
