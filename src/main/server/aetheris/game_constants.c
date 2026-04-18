@@ -10,7 +10,7 @@
 
 #include "position.h"
 #include "sparse_set.h"
-#include "utils.h"   /* utils_ability_hash() — mirrors Java Utils::abilityHash */
+#include "utils.h"   /* utils_ability_hash() - mirrors Java Utils::abilityHash */
 
 /* =========================================================================
  * Mutable statics
@@ -108,7 +108,7 @@ const ae_scene_tag_entry_t AE_DEFAULT_CUSTOM_SCENE_TAGS[] = {
     _ST(3, 152), _ST(3, 153), _ST(3, 1094), _ST(3, 1164), _ST(3, 1166),
     /* scene 4 */
     _ST(4, 106), _ST(4, 109), _ST(4, 117),
-    /* scene 9  — IntStream.range(1000, 1086) */
+    /* scene 9  - IntStream.range(1000, 1086) */
     _ST(9,1000),_ST(9,1001),_ST(9,1002),_ST(9,1003),_ST(9,1004),
     _ST(9,1005),_ST(9,1006),_ST(9,1007),_ST(9,1008),_ST(9,1009),
     _ST(9,1010),_ST(9,1011),_ST(9,1012),_ST(9,1013),_ST(9,1014),
@@ -127,7 +127,7 @@ const ae_scene_tag_entry_t AE_DEFAULT_CUSTOM_SCENE_TAGS[] = {
     _ST(9,1075),_ST(9,1076),_ST(9,1077),_ST(9,1078),_ST(9,1079),
     _ST(9,1080),_ST(9,1081),_ST(9,1082),_ST(9,1083),_ST(9,1084),
     _ST(9,1085),
-    /* scene 10 — IntStream.range(1261, 1269) */
+    /* scene 10 - IntStream.range(1261, 1269) */
     _ST(10,1261),_ST(10,1262),_ST(10,1263),_ST(10,1264),
     _ST(10,1265),_ST(10,1266),_ST(10,1267),_ST(10,1268),
     /* sentinel */
