@@ -74,7 +74,7 @@ static void _signal_handler(int sig) {
 }
 
 /* =========================================================================
- * ae_init()  —  Static initialiser block
+ * ae_init()  -  Static initialiser block
  * ====================================================================== */
 ae_error_t ae_init(void) {
   ae_error_t err;
@@ -116,7 +116,7 @@ ae_error_t ae_init(void) {
 }
 
 /* =========================================================================
- * ae_main()  —  public static void main(String[] args)
+ * ae_main()  -  public static void main(String[] args)
  * ====================================================================== */
 ae_error_t ae_main(int argc, char **argv) {
   ae_error_t err;
@@ -251,7 +251,7 @@ ae_error_t ae_main(int argc, char **argv) {
 }
 
 /* =========================================================================
- * ae_shutdown()  —  private static void onShutdown()
+ * ae_shutdown()  -  private static void onShutdown()
  * ====================================================================== */
 void ae_shutdown(void) {
   if (ae_plugin_manager)
@@ -271,7 +271,7 @@ void ae_shutdown(void) {
 }
 
 /* =========================================================================
- * ae_start_dispatch()  —  public static void startDispatch()
+ * ae_start_dispatch()  -  public static void startDispatch()
  * ====================================================================== */
 ae_error_t ae_start_dispatch(void) {
   ae_error_t err = http_server_start(ae_http_server);
