@@ -1,9 +1,31 @@
+/*
+ * 
+ *           ______ _______ _    _ ______ _____  _____  _____ 
+ *     /\   |  ____|__   __| |  | |  ____|  __ \|_   _|/ ____|
+ *    /  \  | |__     | |  | |__| | |__  | |__) | | | | (___  
+ *   / /\ \ |  __|    | |  |  __  |  __| |  _  /  | |  \___ \ 
+ *  / ____ \| |____   | |  | |  | | |____| | \ \ _| |_ ____) |
+ * /_/    \_\______|  |_|  |_|  |_|______|_|  \_\_____|_____/ 
+ * 
+ *                                                                                     v1.0
+ * @name Aetheris
+ *
+ * @author dkitagawa
+ *
+ * @file configuration.h
+ *
+ * @brief Runtime configuration access layer and convenience API.
+ *
+ * Provides global aliases into the active configuration, lifecycle initialization
+ * for binding those aliases to the loaded config, path helper utilities for
+ * resource lookup, and lightweight fallback helpers for safe configuration access.
+ *
+ * @copyright (c) 2026 Douglas Kitagawa
+ *
+ */
+
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
-
-/*
- * configuration.h
- */
 
 #include <stdbool.h>
 #include <stddef.h>
