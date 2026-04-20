@@ -1,5 +1,28 @@
 /*
- * authentication_system.c
+ * 
+ *           ______ _______ _    _ ______ _____  _____  _____ 
+ *     /\   |  ____|__   __| |  | |  ____|  __ \|_   _|/ ____|
+ *    /  \  | |__     | |  | |__| | |__  | |__) | | | | (___  
+ *   / /\ \ |  __|    | |  |  __  |  __| |  _  /  | |  \___ \ 
+ *  / ____ \| |____   | |  | |  | | |____| | \ \ _| |_ ____) |
+ * /_/    \_\______|  |_|  |_|  |_|______|_|  \_\_____|_____/ 
+ * 
+ *                                                                                     v1.0
+ * @name Aetheris
+ *
+ * @author dkitagawa
+ *
+ * @file authentication_system.c
+ *
+ * @brief Authentication request builder implementations.
+ *
+ * Provides helper functions for constructing normalized authentication
+ * request objects from different login flows (password, token, combo-token,
+ * and external HTTP context). Each builder zero-initializes the request
+ * structure and populates only the relevant fields for the given flow.
+ *
+ * @copyright (c) 2026 Douglas Kitagawa
+ *
  */
 
 #include "authentication_system.h"
