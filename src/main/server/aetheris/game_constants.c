@@ -1,5 +1,28 @@
 /*
- * game_constants.c
+ * 
+ *           ______ _______ _    _ ______ _____  _____  _____ 
+ *     /\   |  ____|__   __| |  | |  ____|  __ \|_   _|/ ____|
+ *    /  \  | |__     | |  | |__| | |__  | |__) | | | | (___  
+ *   / /\ \ |  __|    | |  |  __  |  __| |  _  /  | |  \___ \ 
+ *  / ____ \| |____   | |  | |  | | |____| | \ \ _| |_ ____) |
+ * /_/    \_\______|  |_|  |_|  |_|______|_|  \_\_____|_____/ 
+ * 
+ *                                                                                     v1.0
+ * @name Aetheris
+ *
+ * @author dkitagawa
+ *
+ * @file game_constants.c
+ *
+ * @brief Defines and initializes core game constants for Aetheris.
+ *
+ * Contains version data, start position, default ability definitions,
+ * scene tag mappings, and illegal item/weapon/relic sets. Also provides
+ * initialization and cleanup routines for derived runtime constants such
+ * as ability hashes and sparse-set-based rule tables.
+ *
+ * @copyright (c) 2026 Douglas Kitagawa
+ *
  */
 
 #include "game_constants.h"
