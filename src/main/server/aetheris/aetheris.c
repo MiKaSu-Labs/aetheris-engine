@@ -1,7 +1,25 @@
 /*
- * aetheris.c
+ * 
+ *           ______ _______ _    _ ______ _____  _____  _____ 
+ *     /\   |  ____|__   __| |  | |  ____|  __ \|_   _|/ ____|
+ *    /  \  | |__     | |  | |__| | |__  | |__) | | | | (___  
+ *   / /\ \ |  __|    | |  |  __  |  __| |  _  /  | |  \___ \ 
+ *  / ____ \| |____   | |  | |  | | |____| | \ \ _| |_ ____) |
+ * /_/    \_\______|  |_|  |_|  |_|______|_|  \_\_____|_____/ 
+ * 
+ *                                                                                     v1.0
+ * @name Aetheris
+ *
+ * @author dkitagawa
+ *
+ * @file aetheris.c
+ *
+ * @brief Initializes and runs the Aetheris server runtime, setting up configuration, subsystems, servers, plugins, and the interactive console, and managing the full application lifecycle including startup and shutdown.
+ *
+ * @copyright (c) 2026 Douglas Kitagawa
  *
  * Compile (example):
+ * 
  *   cc -std=c11 -Wall -Wextra -o aetheris aetheris.c \
  *       -lpthread -lreadline \
  *       $(pkg-config --cflags --libs jansson)   # for JSON config
