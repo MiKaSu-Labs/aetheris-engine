@@ -1,9 +1,32 @@
+/*
+ * 
+ *           ______ _______ _    _ ______ _____  _____  _____ 
+ *     /\   |  ____|__   __| |  | |  ____|  __ \|_   _|/ ____|
+ *    /  \  | |__     | |  | |__| | |__  | |__) | | | | (___  
+ *   / /\ \ |  __|    | |  |  __  |  __| |  _  /  | |  \___ \ 
+ *  / ____ \| |____   | |  | |  | | |____| | \ \ _| |_ ____) |
+ * /_/    \_\______|  |_|  |_|  |_|______|_|  \_\_____|_____/ 
+ * 
+ *                                                                                     v1.0
+ * @name Aetheris
+ *
+ * @author dkitagawa
+ *
+ * @file config_container.h
+ *
+ * @brief Complete hierarchical configuration schema for the Aetheris server.
+ *
+ * Defines the full runtime configuration structure including server, game,
+ * HTTP, dispatch, database, account, localization, debug, and policy settings.
+ * Also provides lifecycle functions for creating, updating, and freeing
+ * configuration containers with versioning support and default initialization.
+ *
+ * @copyright (c) 2026 Douglas Kitagawa
+ *
+ */
+
 #ifndef CONFIG_CONTAINER_H
 #define CONFIG_CONTAINER_H
-
-/*
- * config_container.h
- */
 
 #include <stdbool.h>
 #include <stddef.h>
