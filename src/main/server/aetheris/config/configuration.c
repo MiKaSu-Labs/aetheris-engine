@@ -1,5 +1,27 @@
 /*
- * configuration.c
+ * 
+ *           ______ _______ _    _ ______ _____  _____  _____ 
+ *     /\   |  ____|__   __| |  | |  ____|  __ \|_   _|/ ____|
+ *    /  \  | |__     | |  | |__| | |__  | |__) | | | | (___  
+ *   / /\ \ |  __|    | |  |  __  |  __| |  _  /  | |  \___ \ 
+ *  / ____ \| |____   | |  | |  | | |____| | \ \ _| |_ ____) |
+ * /_/    \_\______|  |_|  |_|  |_|______|_|  \_\_____|_____/ 
+ * 
+ *                                                                                     v1.0
+ * @name Aetheris
+ *
+ * @author dkitagawa
+ *
+ * @file configuration.c
+ *
+ * @brief Configuration alias initialization and path utility implementation.
+ *
+ * Initializes global runtime aliases pointing into the active configuration
+ * structure and provides helper functions for resolving common resource
+ * directory paths such as data, plugins, scripts, and packets.
+ *
+ * @copyright (c) 2026 Douglas Kitagawa
+ *
  */
 
 #include "configuration.h"
