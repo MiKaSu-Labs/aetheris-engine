@@ -1,9 +1,33 @@
+/*
+ * 
+ *           ______ _______ _    _ ______ _____  _____  _____ 
+ *     /\   |  ____|__   __| |  | |  ____|  __ \|_   _|/ ____|
+ *    /  \  | |__     | |  | |__| | |__  | |__) | | | | (___  
+ *   / /\ \ |  __|    | |  |  __  |  __| |  _  /  | |  \___ \ 
+ *  / ____ \| |____   | |  | |  | | |____| | \ \ _| |_ ____) |
+ * /_/    \_\______|  |_|  |_|  |_|______|_|  \_\_____|_____/ 
+ * 
+ *                                                                                     v1.0
+ * @name Aetheris
+ *
+ * @author dkitagawa
+ *
+ * @file authentication_system.h
+ *
+ * @brief Pluggable authentication system interface for Aetheris.
+ *
+ * Defines request structures, authenticator vtables, and the main
+ * authentication system interface used for login, token validation,
+ * external authentication, and plugin-based auth replacement at runtime.
+ *
+ * @copyright (c) 2026 Douglas Kitagawa
+ *
+ */
+
 #ifndef AUTHENTICATION_SYSTEM_H
 #define AUTHENTICATION_SYSTEM_H
 
 /*
- * authentication_system.h
- *
  * Defines the authentication system interface for the server.
  * Can be replaced by plugins at runtime by swapping ae_auth_system.
  */
