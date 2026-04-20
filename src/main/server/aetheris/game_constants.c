@@ -33,7 +33,7 @@
 
 #include "position.h"
 #include "sparse_set.h"
-#include "utils.h"   /* utils_ability_hash() - mirrors Java Utils::abilityHash */
+#include "utils.h"
 
 /* =========================================================================
  * Mutable statics
@@ -113,12 +113,6 @@ int    ae_default_ability_name       = 0;
 /* =========================================================================
  * Default custom scene tags
  *
- * Java source:
- *   Map.entry(3,  List.of(152, 153, 1094, 1164, 1166))
- *   Map.entry(4,  List.of(106, 109, 117))
- *   Map.entry(9,  IntStream.range(1000, 1086))   -> 1000..1085
- *   Map.entry(10, IntStream.range(1261, 1269))   -> 1261..1268
- *
  * Stored as a flat (scene_id, tag) pair array; sentinel = {-1, -1}.
  * ====================================================================== */
 
@@ -190,11 +184,7 @@ void game_constants_init(void) {
     ae_default_ability_name = utils_ability_hash("Default");
 
     /* --- Illegal sparse sets ------------------------------------------- */
-    /*
-     * Java SparseSet accepts a range-DSL string, e.g.:
-     *   "10000-10008, 11411, 11506-11508, ..."
-     * ae_sparse_set_parse() implements the same DSL.
-     */
+    // ae_sparse_set_parse() implements the same DSL.
     ae_illegal_weapons = ae_sparse_set_parse(
         "10000-10008, 11411, 11506-11508, 12505, 12506, 12508, 12509,"
         "13503, 13506, 14411, 14503, 14505, 14508, 15504-15506");
