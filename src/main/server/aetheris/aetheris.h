@@ -1,9 +1,32 @@
+/*
+ * 
+ *           ______ _______ _    _ ______ _____  _____  _____ 
+ *     /\   |  ____|__   __| |  | |  ____|  __ \|_   _|/ ____|
+ *    /  \  | |__     | |  | |__| | |__  | |__) | | | | (___  
+ *   / /\ \ |  __|    | |  |  __  |  __| |  _  /  | |  \___ \ 
+ *  / ____ \| |____   | |  | |  | | |____| | \ \ _| |_ ____) |
+ * /_/    \_\______|  |_|  |_|  |_|______|_|  \_\_____|_____/ 
+ * 
+ *                                                                                     v1.0
+ * @name Aetheris
+ *
+ * @author dkitagawa
+ *
+ * @file aetheris.h
+ *
+ * @brief Core Aetheris server framework API.
+ *
+ * Provides global state, lifecycle management (init, run, shutdown),
+ * configuration and language handling, server mode selection,
+ * thread pool utilities, and access to major subsystems such as
+ * HTTP/game/dispatch servers, plugin system, and console interface.
+ *
+ * @copyright (c) 2026 Douglas Kitagawa
+ * 
+ */
+
 #ifndef AETHERIS_H
 #define AETHERIS_H
-
-/*
- * aetheris.h
- */
 
 #include <stdbool.h>
 #include <stddef.h>
