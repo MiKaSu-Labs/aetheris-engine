@@ -17,7 +17,7 @@ extern "C" {
 #endif
 
 /* =========================================================================
- * Aliases into the live config (Java: public static final X = config.x)
+ * Aliases into the live config
  *
  * These are pointers into ae_config, so they always reflect the current
  * runtime configuration even after a ae_force_reload().
@@ -66,7 +66,7 @@ extern ae_handbook_options_t  *AE_HANDBOOK;
 /* server.fastRequire */
 extern bool                    AE_FAST_REQUIRE;
 
-/* folderStructure.* - private in Java, kept static-scoped here via
+/*
  * module-private globals; accessed only through the path helpers below. */
 extern const char *ae_cfg_data_folder;
 extern const char *ae_cfg_plugins_folder;
@@ -85,10 +85,10 @@ extern const char *ae_cfg_packets_folder;
 void ae_configuration_init(void);
 
 /* =========================================================================
- * Path helpers  (Java: public/private static String X(String path))
+ * Path helpers
  *
  * Each function writes the result into `out` (size `out_size`) and returns
- * `out` for convenience, mirroring the Java String return.
+ * `out` for convenience.
  *
  * The @Deprecated originals are preserved so existing call-sites compile;
  * prefer ae_file_utils_get_resource_path() for new code.
@@ -117,7 +117,6 @@ const char *ae_cfg_packet(const char *path, char *out, size_t out_size);
 
 /* =========================================================================
  * lr() fallback helpers
- * (Java: public static <T> T lr(T left, T right))
  *
  * Returns `left` if it is non-null / non-empty / non-zero, else `right`.
  * ====================================================================== */

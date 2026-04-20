@@ -34,7 +34,7 @@ ae_inventory_limits_t  *AE_INVENTORY_LIMITS  = NULL;
 ae_handbook_options_t  *AE_HANDBOOK         = NULL;
 bool                    AE_FAST_REQUIRE      = false;
 
-/* Folder paths — module-private in Java, exposed here for path helpers */
+/* Folder paths, module-private, exposed here for path helpers */
 const char *ae_cfg_data_folder    = NULL;
 const char *ae_cfg_plugins_folder = NULL;
 const char *ae_cfg_scripts_folder = NULL;
