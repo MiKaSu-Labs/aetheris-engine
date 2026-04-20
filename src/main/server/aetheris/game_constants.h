@@ -1,9 +1,32 @@
+/*
+ * 
+ *           ______ _______ _    _ ______ _____  _____  _____ 
+ *     /\   |  ____|__   __| |  | |  ____|  __ \|_   _|/ ____|
+ *    /  \  | |__     | |  | |__| | |__  | |__) | | | | (___  
+ *   / /\ \ |  __|    | |  |  __  |  __| |  _  /  | |  \___ \ 
+ *  / ____ \| |____   | |  | |  | | |____| | \ \ _| |_ ____) |
+ * /_/    \_\______|  |_|  |_|  |_|______|_|  \_\_____|_____/ 
+ * 
+ *                                                                                     v1.0
+ * @name Aetheris
+ *
+ * @author dkitagawa
+ *
+ * @file game_constants.h
+ *
+ * @brief Core game constants and runtime-initialized static data.
+ *
+ * Declares global configuration values, compile-time gameplay constants,
+ * default ability definitions, scene tag mappings, and illegal item sets.
+ * Also provides initialization and cleanup functions for derived data such
+ * as ability hashes and sparse set structures.
+ *
+ * @copyright (c) 2026 Douglas Kitagawa
+ *
+ */
+
 #ifndef GAME_CONSTANTS_H
 #define GAME_CONSTANTS_H
-
-/*
- * game_constants.h
- */
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -16,7 +39,7 @@ extern "C" {
 #endif
 
 /* =========================================================================
- * Mutable statics  (Java: public static - no final)
+ * Mutable statics
  * ====================================================================== */
 
 extern char  ae_version[16];        /* "4.0.0"          */
@@ -24,7 +47,7 @@ extern int   ae_version_parts[3];   /* {4, 0, 0}        */
 extern bool  ae_debug;              /* false            */
 
 /* =========================================================================
- * Compile-time integer constants  (Java: public static final int)
+ * Compile-time integer constants
  * ====================================================================== */
 
 #define AE_DEFAULT_TEAMS                4
@@ -41,7 +64,7 @@ extern bool  ae_debug;              /* false            */
 #define AE_BATTLE_PASS_CURRENT_INDEX   2
 
 /* =========================================================================
- * Start position  (Java: public static final Position START_POSITION)
+ * Start position
  * Initialised in game_constants_init().
  * ====================================================================== */
 
@@ -49,7 +72,6 @@ extern ae_position_t ae_start_position; /* {2747.0f, 194.0f, -1719.0f} */
 
 /* =========================================================================
  * Default ability strings
- * (Java: public static final String[] DEFAULT_ABILITY_STRINGS)
  * ====================================================================== */
 
 extern const char *AE_DEFAULT_ABILITY_STRINGS[];
@@ -60,7 +82,6 @@ extern const size_t AE_DEFAULT_TEAM_ABILITY_STRINGS_LEN;
 
 /* =========================================================================
  * Default ability hashes
- * (Java: computed via Arrays.stream(...).mapToInt(Utils::abilityHash))
  * Populated by game_constants_init().
  * ====================================================================== */
 
@@ -70,7 +91,6 @@ extern int     ae_default_ability_name;      /* Utils.abilityHash("Default") */
 
 /* =========================================================================
  * Default custom scene tags
- * (Java: Map<Integer, List<Integer>> DEFAULT_CUSTOM_SCENE_TAGS)
  *
  * Flattened into a table of (scene_id, tag) pairs; terminated by a
  * sentinel entry with scene_id == -1.
@@ -85,7 +105,6 @@ extern const ae_scene_tag_entry_t AE_DEFAULT_CUSTOM_SCENE_TAGS[]; /* sentinel-te
 
 /* =========================================================================
  * Illegal item / weapon / relic sparse sets
- * (Java: public static final SparseSet ILLEGAL_*)
  * Populated by game_constants_init().
  * ====================================================================== */
 
