@@ -1,5 +1,28 @@
 /*
- * config_container.c
+ * 
+ *           ______ _______ _    _ ______ _____  _____  _____ 
+ *     /\   |  ____|__   __| |  | |  ____|  __ \|_   _|/ ____|
+ *    /  \  | |__     | |  | |__| | |__  | |__) | | | | (___  
+ *   / /\ \ |  __|    | |  |  __  |  __| |  _  /  | |  \___ \ 
+ *  / ____ \| |____   | |  | |  | | |____| | \ \ _| |_ ____) |
+ * /_/    \_\______|  |_|  |_|  |_|______|_|  \_\_____|_____/ 
+ * 
+ *                                                                                     v1.0
+ * @name Aetheris
+ *
+ * @author dkitagawa
+ *
+ * @file config_container.c
+ *
+ * @brief Default configuration construction, memory management, and version migration.
+ *
+ * Implements creation of a fully populated default configuration, including
+ * all server, game, HTTP, dispatch, and policy settings. Also provides
+ * memory cleanup for dynamically allocated fields and automatic migration
+ * of legacy configuration files to the latest schema version.
+ *
+ * @copyright (c) 2026 Douglas Kitagawa
+ *
  */
 
 #include "config_container.h"
