@@ -1,13 +1,13 @@
 /*
- * 
- *           ______ _______ _    _ ______ _____  _____  _____ 
+ *
+ *           ______ _______ _    _ ______ _____  _____  _____
  *     /\   |  ____|__   __| |  | |  ____|  __ \|_   _|/ ____|
- *    /  \  | |__     | |  | |__| | |__  | |__) | | | | (___  
- *   / /\ \ |  __|    | |  |  __  |  __| |  _  /  | |  \___ \ 
+ *    /  \  | |__     | |  | |__| | |__  | |__) | | | | (___
+ *   / /\ \ |  __|    | |  |  __  |  __| |  _  /  | |  \___ \
  *  / ____ \| |____   | |  | |  | | |____| | \ \ _| |_ ____) |
- * /_/    \_\______|  |_|  |_|  |_|______|_|  \_\_____|_____/ 
- * 
- *                                                                                     v1.0
+ * /_/    \_\______|  |_|  |_|  |_|______|_|  \_\_____|_____/
+ *
+ *                                                             v1.0
  * @name Aetheris
  *
  * @author dkitagawa
@@ -29,7 +29,6 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
 
 #include "position.h"
 #include "sparse_set.h"
@@ -125,7 +124,7 @@ const ae_scene_tag_entry_t AE_DEFAULT_CUSTOM_SCENE_TAGS[] = {
     _ST(3, 152), _ST(3, 153), _ST(3, 1094), _ST(3, 1164), _ST(3, 1166),
     /* scene 4 */
     _ST(4, 106), _ST(4, 109), _ST(4, 117),
-    /* scene 9  - IntStream.range(1000, 1086) */
+    /* scene 9, tags 1000-1085 */
     _ST(9,1000),_ST(9,1001),_ST(9,1002),_ST(9,1003),_ST(9,1004),
     _ST(9,1005),_ST(9,1006),_ST(9,1007),_ST(9,1008),_ST(9,1009),
     _ST(9,1010),_ST(9,1011),_ST(9,1012),_ST(9,1013),_ST(9,1014),
@@ -144,7 +143,7 @@ const ae_scene_tag_entry_t AE_DEFAULT_CUSTOM_SCENE_TAGS[] = {
     _ST(9,1075),_ST(9,1076),_ST(9,1077),_ST(9,1078),_ST(9,1079),
     _ST(9,1080),_ST(9,1081),_ST(9,1082),_ST(9,1083),_ST(9,1084),
     _ST(9,1085),
-    /* scene 10 - IntStream.range(1261, 1269) */
+    /* scene 10, tags 1261-1268 */
     _ST(10,1261),_ST(10,1262),_ST(10,1263),_ST(10,1264),
     _ST(10,1265),_ST(10,1266),_ST(10,1267),_ST(10,1268),
     /* sentinel */
@@ -165,16 +164,22 @@ ae_sparse_set_t *ae_illegal_items   = NULL;
 /* =========================================================================
  * game_constants_init()
  * ====================================================================== */
-void game_constants_init(void) {
-    /* --- Start position ------------------------------------------------ */
+ae_error_t game_constants_init(void) {
+    /* Default player spawn point. */
     ae_start_position.x =  2747.0f;
     ae_start_position.y =   194.0f;
     ae_start_position.z = -1719.0f;
 
-    /* --- Ability hashes ------------------------------------------------ */
+    /* Ability hashes, computed once from AE_DEFAULT_ABILITY_STRINGS. */
     ae_default_ability_hashes_len = AE_DEFAULT_ABILITY_STRINGS_LEN;
+
+    if (ae_default_ability_hashes_len > SIZE_MAX / sizeof(int))
+        return AE_ERR_GENERIC;
+
     ae_default_ability_hashes =
         malloc(ae_default_ability_hashes_len * sizeof(int));
+    if (!ae_default_ability_hashes)
+        return AE_ERR_GENERIC;
 
     for (size_t i = 0; i < ae_default_ability_hashes_len; i++) {
         ae_default_ability_hashes[i] =
@@ -183,19 +188,30 @@ void game_constants_init(void) {
 
     ae_default_ability_name = utils_ability_hash("Default");
 
-    /* --- Illegal sparse sets ------------------------------------------- */
-    // ae_sparse_set_parse() implements the same DSL.
+    /*
+     * Illegal item / weapon / relic sparse sets. Each string is a DSL of
+     * comma-separated entries, where each entry is either a single ID
+     * ("11411") or an inclusive range ("10000-10008").
+     */
     ae_illegal_weapons = ae_sparse_set_parse(
         "10000-10008, 11411, 11506-11508, 12505, 12506, 12508, 12509,"
         "13503, 13506, 14411, 14503, 14505, 14508, 15504-15506");
+    if (!ae_illegal_weapons)
+        return AE_ERR_GENERIC;
 
     ae_illegal_relics = ae_sparse_set_parse(
         "20001, 23300-23340, 23383-23385, 78310-78554, 99310-99554");
+    if (!ae_illegal_relics)
+        return AE_ERR_GENERIC;
 
     ae_illegal_items = ae_sparse_set_parse(
         "100086, 100087, 100100-101000, 101106-101110, 101306, 101500-104000,"
         "105001, 105004, 106000-107000, 107011, 108000, 109000-110000,"
         "115000-130000, 200200-200899, 220050, 220054");
+    if (!ae_illegal_items)
+        return AE_ERR_GENERIC;
+
+    return AE_OK;
 }
 
 /* =========================================================================
