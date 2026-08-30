@@ -28,8 +28,6 @@
 #define AETHERIS_H
 
 #include <stdbool.h>
-#include <stddef.h>
-#include <stdio.h>
 
 /* =========================================================================
  * Error codes
@@ -130,6 +128,11 @@ extern bool ae_no_console;
  * optionally migrates the server configuration, loads the language pack,
  * runs structural startup checks, and creates the global thread pool.
  *
+ * On any non-AE_OK return, global state may be left partially initialized
+ * (e.g., the logger or config set while a later step failed). The caller
+ * must treat this as fatal: do not call ae_main(); terminate the process
+ * instead of retrying.
+ *
  * Not thread-safe. Call from the main thread only, exactly once.
  *
  * @return AE_OK on success.
@@ -147,6 +150,11 @@ ae_error_t ae_init(void);
  * mode, loads game resources, starts servers and plugins, registers
  * signal-based shutdown, and then blocks in the interactive console loop
  * until the process exits.
+ *
+ * On any non-AE_OK return, one or more subsystems may already have been
+ * created or started. The caller must treat this as fatal and terminate
+ * the process; calling ae_shutdown() first is safe (it NULL-checks each
+ * subsystem before use) but is not required before exiting.
  *
  * ae_init() must have returned AE_OK before this is called.
  * Not thread-safe. Call from the main thread only.
@@ -205,18 +213,27 @@ ae_error_t ae_start_dispatch(void);
  * If the file does not exist, a default configuration is generated,
  * written to disk via ae_save_config(), and assigned to ae_config.
  * If the file exists but cannot be parsed, an error is logged and
- * AE_ERR_CONFIG is returned; ae_config is left unchanged.
+ * AE_ERR_CONFIG is returned. On any failure, ae_config retains its
+ * previous value (NULL if this is the first call); a previous
+ * configuration is only released after a new one has been successfully
+ * loaded.
  *
  * Not thread-safe. ae_config must not be accessed concurrently.
  *
  * @return AE_OK on success.
  * @return AE_ERR_CONFIG if the file exists but is malformed.
+ * @return AE_ERR_GENERIC if no config file exists and a default
+ *         configuration cannot be allocated.
  * @return AE_ERR_IO if the default configuration cannot be written.
  */
 ae_error_t ae_load_config(void);
 
 /**
  * @brief Serialize and write a configuration to AE_CONFIG_FILE.
+ *
+ * Writes to a temporary file alongside AE_CONFIG_FILE and renames it
+ * into place on success, so a failed encode or a failed write never
+ * truncates or corrupts an existing, valid configuration file.
  *
  * @param config  Configuration to write. If NULL, a freshly allocated
  *                default configuration is used and freed before return;
@@ -227,8 +244,11 @@ ae_error_t ae_load_config(void);
  * Not thread-safe. ae_config must not be accessed concurrently.
  *
  * @return AE_OK on success.
- * @return AE_ERR_IO if the output file cannot be opened or written.
- * @return AE_ERR_GENERIC if the configuration cannot be encoded to JSON.
+ * @return AE_ERR_IO if the temporary file cannot be opened, written,
+ *         flushed, or renamed into place.
+ * @return AE_ERR_GENERIC if config is NULL and a default configuration
+ *         cannot be allocated, or if the configuration cannot be
+ *         encoded to JSON.
  */
 ae_error_t ae_save_config(const ae_config_t *config);
 
@@ -240,8 +260,10 @@ ae_error_t ae_save_config(const ae_config_t *config);
  * @brief Load the language pack selected by ae_config->language.language.
  *
  * Resolves the locale string to a BCP-47 code and looks up the matching
- * ae_language_t. On success, ae_language is set to the returned pack.
- * The returned pointer is borrowed from the language registry; do not free.
+ * ae_language_t. On success, ae_language is set to the returned pack; on
+ * failure, ae_language retains its previous value (NULL if this is the
+ * first call). The returned pointer is borrowed from the language
+ * registry; do not free.
  *
  * Not thread-safe. Call from the main thread during startup or reload.
  *
