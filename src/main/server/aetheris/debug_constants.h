@@ -79,9 +79,14 @@ extern bool ae_log_missing_ability_handlers;
  * real account data. There is no runtime guard preventing misuse once
  * this flag is true.
  *
- * Defined as a const bool so that compilers can propagate the false value
- * and eliminate dead branches in release builds without requiring a
- * preprocessor macro.
+ * Defined as a const bool, matching the extern-variable pattern used for
+ * the other flags in this file, rather than a preprocessor macro: it has
+ * a real type, is visible to a debugger, and can be inspected by address.
+ * Because it has external linkage, the compiler can only fold it to a
+ * compile-time constant and eliminate dependent branches within this
+ * translation unit (or under whole-program/LTO optimization); other
+ * translation units resolve its value at link time like any other extern
+ * and do not get automatic dead-branch elimination from this alone.
  */
 extern const bool AE_ACCEPT_CLIENT_TOKEN;
 
