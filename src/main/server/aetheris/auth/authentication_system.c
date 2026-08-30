@@ -1,13 +1,13 @@
 /*
- * 
- *           ______ _______ _    _ ______ _____  _____  _____ 
+ *
+ *           ______ _______ _    _ ______ _____  _____  _____
  *     /\   |  ____|__   __| |  | |  ____|  __ \|_   _|/ ____|
- *    /  \  | |__     | |  | |__| | |__  | |__) | | | | (___  
- *   / /\ \ |  __|    | |  |  __  |  __| |  _  /  | |  \___ \ 
+ *    /  \  | |__     | |  | |__| | |__  | |__) | | | | (___
+ *   / /\ \ |  __|    | |  |  __  |  __| |  _  /  | |  \___ \
  *  / ____ \| |____   | |  | |  | | |____| | \ \ _| |_ ____) |
- * /_/    \_\______|  |_|  |_|  |_|______|_|  \_\_____|_____/ 
- * 
- *                                                                                     v1.0
+ * /_/    \_\______|  |_|  |_|  |_|______|_|  \_\_____|_____/
+ *
+ *                                                             v1.0
  * @name Aetheris
  *
  * @author dkitagawa
@@ -42,6 +42,7 @@ void ae_auth_request_from_password(
     out->password_request = json_data;
 }
 
+
 void ae_auth_request_from_token(
         ae_auth_request_t        *out,
         ae_http_context_t        *ctx,
@@ -50,6 +51,7 @@ void ae_auth_request_from_token(
     out->context       = ctx;
     out->token_request = json_data;
 }
+
 
 void ae_auth_request_from_combo_token(
         ae_auth_request_t           *out,
@@ -61,6 +63,7 @@ void ae_auth_request_from_combo_token(
     out->session_key_request = json_data;
     out->session_key_data    = token_data;
 }
+
 
 void ae_auth_request_from_external(
         ae_auth_request_t *out,
