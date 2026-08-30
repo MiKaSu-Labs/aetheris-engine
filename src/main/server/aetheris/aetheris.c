@@ -28,9 +28,11 @@
 
 #include "aetheris.h"
 
-#include <assert.h>
-#include <pthread.h>
+#include <errno.h>
+#include <limits.h>
 #include <signal.h>
+#include <stddef.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -154,6 +156,8 @@ ae_error_t ae_main(int argc, char **argv) {
     ae_server_run_mode_t run_mode = ae_get_run_mode();
 
     ae_command_map = command_map_create(/*register_defaults=*/true);
+    if (!ae_command_map)
+        return AE_ERR_GENERIC;
 
     ae_logger_info(ae_logger, translate("messages.status.starting"));
     ae_logger_info(ae_logger, translate("messages.status.game_version"),
@@ -165,21 +169,32 @@ ae_error_t ae_main(int argc, char **argv) {
     if (err != AE_OK)
         return err;
 
-    ae_auth_system  = default_authentication_create();
+    ae_auth_system = default_authentication_create();
+    if (!ae_auth_system)
+        return AE_ERR_GENERIC;
+
     ae_perm_handler = default_permission_handler_create();
+    if (!ae_perm_handler)
+        return AE_ERR_GENERIC;
 
     if (run_mode == SERVER_RUN_MODE_HYBRID ||
         run_mode == SERVER_RUN_MODE_GAME_ONLY) {
         ae_game_server = game_server_create();
+        if (!ae_game_server)
+            return AE_ERR_GENERIC;
     }
     if (run_mode == SERVER_RUN_MODE_HYBRID ||
         run_mode == SERVER_RUN_MODE_DISPATCH_ONLY) {
         ae_http_server = http_server_create();
+        if (!ae_http_server)
+            return AE_ERR_GENERIC;
     }
 
     server_helper_create(ae_game_server, ae_http_server);
 
     ae_plugin_manager = plugin_manager_create();
+    if (!ae_plugin_manager)
+        return AE_ERR_GENERIC;
 
     /* Register HTTP routes (skipped in GAME_ONLY mode). */
     if (run_mode != SERVER_RUN_MODE_GAME_ONLY) {
@@ -310,8 +325,18 @@ ae_error_t ae_start_dispatch(void) {
 ae_error_t ae_load_language(void) {
     const char *locale    = ae_config->language.language;
     const char *lang_code = utils_get_language_code(locale);
-    ae_language = language_get_by_code(lang_code);
-    return ae_language ? AE_OK : AE_ERR_GENERIC;
+
+    /*
+     * Resolve into a local first. Committing straight into the global
+     * would clobber a previously valid ae_language with NULL if this
+     * call is a reload and the lookup fails.
+     */
+    ae_language_t *lang = language_get_by_code(lang_code);
+    if (!lang)
+        return AE_ERR_GENERIC;
+
+    ae_language = lang;
+    return AE_OK;
 }
 
 
@@ -330,13 +355,25 @@ ae_error_t ae_load_config(void) {
         ae_logger_info(ae_logger,
                        "config.json could not be found. "
                        "Generating a default configuration ...");
-        ae_config = config_container_create_default();
+
+        ae_config_t *def = config_container_create_default();
+        if (!def)
+            return AE_ERR_GENERIC;
+
+        ae_config = def;
         return ae_save_config(ae_config);
     }
     fclose(f);
 
-    ae_config = json_utils_load_config(AE_CONFIG_FILE);
-    if (!ae_config) {
+    /*
+     * Parse into a local first. json_utils_load_config() returns NULL on
+     * a malformed file; assigning that directly into ae_config would
+     * clobber a previously valid config with NULL on a failed reload and
+     * leak the config it replaced. Only commit and free the old one once
+     * the new one is known good.
+     */
+    ae_config_t *loaded = json_utils_load_config(AE_CONFIG_FILE);
+    if (!loaded) {
         ae_logger_error(ae_logger,
                         "There was an error while trying to load the "
                         "configuration from config.json. Please make sure "
@@ -345,6 +382,11 @@ ae_error_t ae_load_config(void) {
                         "existing config.json.");
         return AE_ERR_CONFIG;
     }
+
+    if (ae_config)
+        config_container_free(ae_config);
+    ae_config = loaded;
+
     return AE_OK;
 }
 
@@ -360,9 +402,31 @@ ae_error_t ae_save_config(const ae_config_t *config) {
         ? config_container_create_default()
         : (ae_config_t *)config;
 
-    FILE *f = fopen(AE_CONFIG_FILE, "w");
+    if (!to_save) {
+        ae_logger_error(ae_logger, "Unable to allocate a default configuration.");
+        return AE_ERR_GENERIC;
+    }
+
+    /*
+     * Write to a temporary file next to AE_CONFIG_FILE and rename it into
+     * place only after the write succeeds. Writing directly to
+     * AE_CONFIG_FILE with "w" mode would truncate it immediately on open,
+     * so a subsequent encode or write failure would destroy the existing,
+     * valid configuration and leave nothing in its place.
+     */
+    char tmp_path[PATH_MAX];
+    int n = snprintf(tmp_path, sizeof(tmp_path), "%s.tmp", AE_CONFIG_FILE);
+    if (n < 0 || (size_t)n >= sizeof(tmp_path)) {
+        ae_logger_error(ae_logger, "Config file path too long for temp buffer.");
+        if (owns_config)
+            config_container_free(to_save);
+        return AE_ERR_GENERIC;
+    }
+
+    FILE *f = fopen(tmp_path, "w");
     if (!f) {
-        ae_logger_error(ae_logger, "Unable to write to config file.");
+        ae_logger_error(ae_logger, "Unable to open %s for writing: %s",
+                        tmp_path, strerror(errno));
         if (owns_config)
             config_container_free(to_save);
         return AE_ERR_IO;
@@ -371,15 +435,42 @@ ae_error_t ae_save_config(const ae_config_t *config) {
     char *json = json_utils_encode_config(to_save);
     if (!json) {
         fclose(f);
-        ae_logger_error(ae_logger, "Unable to encode config.");
+        remove(tmp_path);
+        ae_logger_error(ae_logger, "Unable to encode config to JSON.");
         if (owns_config)
             config_container_free(to_save);
         return AE_ERR_GENERIC;
     }
 
-    fputs(json, f);
+    if (fputs(json, f) == EOF) {
+        free(json);
+        fclose(f);
+        remove(tmp_path);
+        ae_logger_error(ae_logger, "Failed writing config contents: %s",
+                        strerror(errno));
+        if (owns_config)
+            config_container_free(to_save);
+        return AE_ERR_IO;
+    }
     free(json);
-    fclose(f);
+
+    if (fclose(f) != 0) {
+        remove(tmp_path);
+        ae_logger_error(ae_logger, "Failed to flush config to disk: %s",
+                        strerror(errno));
+        if (owns_config)
+            config_container_free(to_save);
+        return AE_ERR_IO;
+    }
+
+    if (rename(tmp_path, AE_CONFIG_FILE) != 0) {
+        ae_logger_error(ae_logger, "Failed to replace config file: %s",
+                        strerror(errno));
+        remove(tmp_path);
+        if (owns_config)
+            config_container_free(to_save);
+        return AE_ERR_IO;
+    }
 
     if (owns_config)
         config_container_free(to_save);
@@ -404,8 +495,14 @@ ae_server_run_mode_t ae_get_run_mode(void) {
  * ====================================================================== */
 
 ae_console_reader_t *ae_get_console(void) {
-    if (!ae_console_reader)
+    if (!ae_console_reader) {
         ae_console_reader = console_reader_create();
+        if (!ae_console_reader) {
+            ae_logger_error(ae_logger,
+                            "Fatal: unable to allocate console reader.");
+            abort();
+        }
+    }
     return ae_console_reader;
 }
 
