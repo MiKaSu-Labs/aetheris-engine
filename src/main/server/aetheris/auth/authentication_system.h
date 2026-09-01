@@ -254,6 +254,13 @@ struct ae_auth_system {
 
     /**
      * @brief Verify a user identity from an opaque token (e.g. a JWT).
+     *
+     * This is a separate verification path from get_session_token_validator()
+     * below, not an alias for it: an implementation is free to give the
+     * two different behavior. The default Aetheris implementation, for
+     * example, always fails verify_user() while delegating actual
+     * session-token checks entirely to get_session_token_validator().
+     *
      * @param self    The auth system instance. Must not be NULL.
      * @param details Opaque token/credential to verify. Must not be NULL.
      * @return Borrowed pointer to the matching account in the account
@@ -298,7 +305,9 @@ struct ae_auth_system {
      * @brief Return the authenticator for validating existing session
      *        tokens. Used internally by dispatch_utils_authenticate().
      *        Plugins can override this to support alternate session
-     *        auth methods.
+     *        auth methods. This is a separate verification path from
+     *        verify_user() above, not an alias for it -- see that
+     *        function's doc comment.
      * @param self The auth system instance. Must not be NULL.
      * @return Borrowed pointer, owned by this auth system instance; do
      *         not free. Its authenticate() expects an ae_account_t * out
@@ -348,6 +357,10 @@ struct ae_auth_system {
  * the struct definition above for each member's parameter, ownership,
  * and thread-safety contract; the macros carry no additional contract
  * beyond what's documented there.
+ *
+ * sys is expanded twice in every macro below (once as the object of ->,
+ * once as the first call argument), so pass a simple variable, not an
+ * expression with side effects -- it would run twice.
  * ====================================================================== */
 
 #define ae_auth_create_account(sys, user, pass) \
