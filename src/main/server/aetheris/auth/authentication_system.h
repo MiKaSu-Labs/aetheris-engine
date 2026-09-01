@@ -51,9 +51,9 @@ extern "C" {
 typedef struct ae_auth_system            ae_auth_system_t;
 typedef struct ae_auth_request           ae_auth_request_t;
 typedef struct ae_authenticator          ae_authenticator_t;
-typedef struct ae_ext_authenticator      ae_ext_authenticator_t;
-typedef struct ae_oauth_authenticator    ae_oauth_authenticator_t;
-typedef struct ae_handbook_authenticator ae_handbook_authenticator_t;
+typedef struct ae_ext_authenticator      ae_ext_authenticator_t;      /* full definition in external_authenticator.h */
+typedef struct ae_oauth_authenticator    ae_oauth_authenticator_t;    /* full definition in oauth_authenticator.h    */
+typedef struct ae_handbook_authenticator ae_handbook_authenticator_t; /* full definition in handbook_authenticator.h */
 
 /* =========================================================================
  * ae_auth_request_t
@@ -156,17 +156,19 @@ void ae_auth_request_from_external(
     ae_http_context_t *ctx);
 
 /* =========================================================================
- * Authenticator vtables
+ * ae_authenticator_t -- the generic role authenticator vtable
  *
- * Each role-specific authenticator is a struct with a single function
- * pointer. The output type varies per role and is cast by the caller --
- * see the comment on each function pointer for the concrete type it
- * expects. Passing the wrong concrete type, or a mismatched request kind,
- * is undefined behavior; this interface performs no runtime type check.
+ * Shared by the password, token, session-key, and session-token-validator
+ * roles, which all fit the same shape: validate a request, populate a
+ * role-specific result. The other three role-specific vtables forward-
+ * declared above (ae_ext_authenticator_t, ae_oauth_authenticator_t,
+ * ae_handbook_authenticator_t) don't fit this shape -- each needs more
+ * than one operation with a different signature per operation -- so
+ * they are fully defined in their own dedicated headers instead.
  *
- * The function pointer in every struct in this section must be non-NULL
- * once the struct is handed to the auth system; a populated struct with
- * a NULL callback is not a valid instance of that role.
+ * The function pointer must be non-NULL once this struct is handed to
+ * the auth system; a populated struct with a NULL callback is not a
+ * valid ae_authenticator_t.
  * ====================================================================== */
 
 struct ae_authenticator {
@@ -186,33 +188,6 @@ struct ae_authenticator {
     int (*authenticate)(
         const ae_auth_request_t *request,
         void                    *out);
-};
-
-struct ae_ext_authenticator {
-    /**
-     * @brief Handle an external (third-party) authentication request.
-     * @param request Request to authenticate. Must not be NULL.
-     * @return 0 on success, negative ae_error_t on failure.
-     */
-    int (*handle_external)(const ae_auth_request_t *request);
-};
-
-struct ae_oauth_authenticator {
-    /**
-     * @brief Handle an OAuth authentication request.
-     * @param request Request to authenticate. Must not be NULL.
-     * @return 0 on success, negative ae_error_t on failure.
-     */
-    int (*handle_oauth)(const ae_auth_request_t *request);
-};
-
-struct ae_handbook_authenticator {
-    /**
-     * @brief Handle a handbook (GM tool) authentication request.
-     * @param request Request to authenticate. Must not be NULL.
-     * @return 0 on success, negative ae_error_t on failure.
-     */
-    int (*handle_handbook)(const ae_auth_request_t *request);
 };
 
 /* =========================================================================
@@ -319,6 +294,10 @@ struct ae_auth_system {
 
     /**
      * @brief Return the authenticator for external (third-party) auth.
+     *
+     * See external_authenticator.h for its handle_login(),
+     * handle_account_creation(), and handle_password_reset() members.
+     *
      * @param self The auth system instance. Must not be NULL.
      * @return Borrowed pointer, owned by this auth system instance; do
      *         not free.
@@ -328,6 +307,10 @@ struct ae_auth_system {
 
     /**
      * @brief Return the authenticator for OAuth auth requests.
+     *
+     * See oauth_authenticator.h for its handle_login(),
+     * handle_redirection(), and handle_token_process() members.
+     *
      * @param self The auth system instance. Must not be NULL.
      * @return Borrowed pointer, owned by this auth system instance; do
      *         not free.
@@ -338,6 +321,10 @@ struct ae_auth_system {
     /**
      * @brief Return the authenticator for handbook (GM tool) auth
      *        requests.
+     *
+     * See handbook_authenticator.h for its present_page() and
+     * authenticate() members.
+     *
      * @param self The auth system instance. Must not be NULL.
      * @return Borrowed pointer, owned by this auth system instance; do
      *         not free.
