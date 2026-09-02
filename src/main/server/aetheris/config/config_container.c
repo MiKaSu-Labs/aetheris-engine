@@ -1,13 +1,13 @@
 /*
- * 
- *           ______ _______ _    _ ______ _____  _____  _____ 
+ *
+ *           ______ _______ _    _ ______ _____  _____  _____
  *     /\   |  ____|__   __| |  | |  ____|  __ \|_   _|/ ____|
- *    /  \  | |__     | |  | |__| | |__  | |__) | | | | (___  
- *   / /\ \ |  __|    | |  |  __  |  __| |  _  /  | |  \___ \ 
+ *    /  \  | |__     | |  | |__| | |__  | |__) | | | | (___
+ *   / /\ \ |  __|    | |  |  __  |  __| |  _  /  | |  \___ \
  *  / ____ \| |____   | |  | |  | | |____| | \ \ _| |_ ____) |
- * /_/    \_\______|  |_|  |_|  |_|______|_|  \_\_____|_____/ 
- * 
- *                                                                                     v1.0
+ * /_/    \_\______|  |_|  |_|  |_|______|_|  \_\_____|_____/
+ *
+ *                                                             v1.0
  * @name Aetheris
  *
  * @author dkitagawa
@@ -37,9 +37,10 @@
 #include "json_utils.h"   /* json_utils_has_field()                               */
 #include "utils.h"        /* utils_base64_encode()                                */
 
-/* =========================================================================
- * Internal: fill vision options array with defaults
- * ====================================================================== */
+/*
+ * _fill_default_vision_options - populate the fixed-size vision-tier
+ * array with its default values.
+ */
 static void _fill_default_vision_options(ae_cfg_vision_options_t out[AE_CFG_VISION_OPTIONS_COUNT]) {
     static const ae_cfg_vision_options_t defaults[AE_CFG_VISION_OPTIONS_COUNT] = {
         {"VISION_LEVEL_NORMAL",        80,   20},
@@ -52,9 +53,15 @@ static void _fill_default_vision_options(ae_cfg_vision_options_t out[AE_CFG_VISI
     memcpy(out, defaults, sizeof(defaults));
 }
 
-/* =========================================================================
- * Internal: fill default mail items
- * ====================================================================== */
+/*
+ * _create_default_mail_items - allocate and populate the default
+ * welcome-mail item list.
+ *
+ * @param out_len  Set to the number of items on success, or to 0 if
+ *                 allocation fails. Must not be NULL.
+ * @return Heap-allocated array; caller owns it. NULL on allocation
+ *         failure (with *out_len already set to 0 in that case).
+ */
 static ae_cfg_mail_item_t *_create_default_mail_items(size_t *out_len) {
     ae_cfg_mail_item_t *items = malloc(2 * sizeof(ae_cfg_mail_item_t));
     if (!items) { *out_len = 0; return NULL; }
@@ -71,7 +78,7 @@ ae_config_t *config_container_create_default(void) {
     ae_config_t *c = calloc(1, sizeof(ae_config_t));
     if (!c) return NULL;
 
-    /* --- folderStructure ------------------------------------------------ */
+    /* --- folder_structure ------------------------------------------------ */
     strncpy(c->folder_structure.resources, "./resources/",   sizeof(c->folder_structure.resources) - 1);
     strncpy(c->folder_structure.data,      "./data/",        sizeof(c->folder_structure.data)      - 1);
     strncpy(c->folder_structure.packets,   "./packets/",     sizeof(c->folder_structure.packets)   - 1);
@@ -79,14 +86,14 @@ ae_config_t *config_container_create_default(void) {
     strncpy(c->folder_structure.plugins,   "./plugins/",     sizeof(c->folder_structure.plugins)   - 1);
     strncpy(c->folder_structure.cache,     "./cache/",       sizeof(c->folder_structure.cache)     - 1);
 
-    /* --- databaseInfo --------------------------------------------------- */
+    /* --- database_info --------------------------------------------------- */
     strncpy(c->database_info.server.connection_uri, "mongodb://localhost:27017", sizeof(c->database_info.server.connection_uri) - 1);
     strncpy(c->database_info.server.collection,     "aetheris",                  sizeof(c->database_info.server.collection)     - 1);
     strncpy(c->database_info.game.connection_uri,   "mongodb://localhost:27017", sizeof(c->database_info.game.connection_uri)   - 1);
     strncpy(c->database_info.game.collection,       "aetheris",                  sizeof(c->database_info.game.collection)       - 1);
 
     /* --- language ------------------------------------------------------- */
-    /* Locale.getDefault() -> fall back to "en-US" at runtime if undetectable */
+    /* Hardcoded to "en-US"; no runtime locale detection is performed here. */
     strncpy(c->language.language, "en-US", sizeof(c->language.language) - 1);
     strncpy(c->language.fallback, "en-US", sizeof(c->language.fallback) - 1);
     strncpy(c->language.document, "EN",    sizeof(c->language.document) - 1);
@@ -111,12 +118,12 @@ ae_config_t *config_container_create_default(void) {
     c->server.http.bind_port = 443;
     strncpy(c->server.http.access_address, "127.0.0.1", sizeof(c->server.http.access_address) - 1);
     c->server.http.access_port = 0;
-    /* http.encryption */
+    /* server.http.encryption */
     c->server.http.encryption.use_encryption = true;
     c->server.http.encryption.use_in_routing = true;
     strncpy(c->server.http.encryption.keystore,          "./keystore.p12", sizeof(c->server.http.encryption.keystore)          - 1);
     strncpy(c->server.http.encryption.keystore_password, "123456",         sizeof(c->server.http.encryption.keystore_password) - 1);
-    /* http.policies.cors */
+    /* server.http.policies.cors */
     c->server.http.policies.cors.enabled = true;
     c->server.http.policies.cors.allowed_origins = malloc(2 * sizeof(char *));
     if (c->server.http.policies.cors.allowed_origins) {
@@ -124,7 +131,7 @@ ae_config_t *config_container_create_default(void) {
         c->server.http.policies.cors.allowed_origins[1] = NULL;
         c->server.http.policies.cors.allowed_origins_len = 1;
     }
-    /* http.files */
+    /* server.http.files */
     strncpy(c->server.http.files.index_file, "./index.html", sizeof(c->server.http.files.index_file) - 1);
     strncpy(c->server.http.files.error_file, "./404.html",   sizeof(c->server.http.files.error_file) - 1);
 
@@ -142,7 +149,7 @@ ae_config_t *config_container_create_default(void) {
     c->server.game.is_show_packet_payload           = false;
     c->server.game.is_show_loop_packets             = false;
     c->server.game.cache_scene_entities_every_run   = false;
-    /* game.gameOptions */
+    /* server.game.game_options */
     c->server.game.game_options.inventory_limits = (ae_cfg_inventory_limits_t){2000, 2000, 2000, 2000, 30000};
     c->server.game.game_options.avatar_limits    = (ae_cfg_avatar_limits_t){4, 4};
     c->server.game.game_options.scene_entity_limit      = 1000;
@@ -156,7 +163,7 @@ ae_config_t *config_container_create_default(void) {
     c->server.game.game_options.questing.enabled        = true;
     c->server.game.game_options.resin_options           = (ae_cfg_resin_options_t){false, 160, 480};
     c->server.game.game_options.rates                   = (ae_cfg_rates_t){1.0f, 1.0f, 1.0f};
-    /* game.gameOptions.handbook */
+    /* server.game.game_options.handbook */
     c->server.game.game_options.handbook.enable         = false;
     c->server.game.game_options.handbook.allow_commands = true;
     c->server.game.game_options.handbook.limits         = (ae_cfg_handbook_limits_t){false, 3, 10, 25};
@@ -165,7 +172,7 @@ ae_config_t *config_container_create_default(void) {
             sizeof(c->server.game.game_options.handbook.server.address) - 1);
     c->server.game.game_options.handbook.server.port       = 443;
     c->server.game.game_options.handbook.server.can_change = true;
-    /* game.joinOptions */
+    /* server.game.join_options */
     c->server.game.join_options.welcome_emotes[0] = 2007;
     c->server.game.join_options.welcome_emotes[1] = 1002;
     c->server.game.join_options.welcome_emotes[2] = 4010;
@@ -183,14 +190,14 @@ ae_config_t *config_container_create_default(void) {
             sizeof(c->server.game.join_options.welcome_mail.sender) - 1);
     c->server.game.join_options.welcome_mail.items =
         _create_default_mail_items(&c->server.game.join_options.welcome_mail.items_len);
-    /* game.serverAccount */
+    /* server.game.server_account */
     c->server.game.server_account.avatar_id       = 10000007;
     c->server.game.server_account.name_card_id    = 210001;
     c->server.game.server_account.adventure_rank  = 1;
     c->server.game.server_account.world_level     = 0;
     strncpy(c->server.game.server_account.nick_name,  "Server",              sizeof(c->server.game.server_account.nick_name)  - 1);
     strncpy(c->server.game.server_account.signature,  "Welcome to Aetheris!", sizeof(c->server.game.server_account.signature) - 1);
-    /* game.visionOptions */
+    /* server.game.vision_options */
     _fill_default_vision_options(c->server.game.vision_options);
 
     /* server.dispatch */
@@ -198,20 +205,24 @@ ae_config_t *config_container_create_default(void) {
     c->server.dispatch.regions_len  = 0;
     strncpy(c->server.dispatch.dispatch_url, "ws://127.0.0.1:1111",
             sizeof(c->server.dispatch.dispatch_url) - 1);
-    /* Generate a random 32-byte session key and its base64 representation */
+    /* Generate a random 32-byte session key and its base64 representation.
+     * The base64 encode is only attempted when the key itself was
+     * successfully allocated and filled; on allocation failure,
+     * dispatch_key is left as its zero-initialized (empty string) default
+     * rather than encoding from a NULL buffer. */
     c->server.dispatch.encryption_key = malloc(32);
     if (c->server.dispatch.encryption_key) {
         crypto_create_session_key(c->server.dispatch.encryption_key, 32);
         c->server.dispatch.encryption_key_len = 32;
+        utils_base64_encode(c->server.dispatch.encryption_key, 32,
+                            c->server.dispatch.dispatch_key,
+                            sizeof(c->server.dispatch.dispatch_key));
     }
-    utils_base64_encode(c->server.dispatch.encryption_key, 32,
-                        c->server.dispatch.dispatch_key,
-                        sizeof(c->server.dispatch.dispatch_key));
     strncpy(c->server.dispatch.default_name, "Aetheris",
             sizeof(c->server.dispatch.default_name) - 1);
     c->server.dispatch.log_requests = SERVER_DEBUG_MODE_NONE;
 
-    /* server.debugMode */
+    /* server.debug_mode */
     c->server.debug_mode.server_logger_level    = AE_LOG_LEVEL_DEBUG;
     c->server.debug_mode.services_loggers_level = AE_LOG_LEVEL_INFO;
     c->server.debug_mode.log_packets            = SERVER_DEBUG_MODE_ALL;
@@ -231,31 +242,31 @@ ae_config_t *config_container_create_default(void) {
 void config_container_free(ae_config_t *c) {
     if (!c) return;
 
-    /* account.defaultPermissions */
+    /* account.default_permissions */
     if (c->account.default_permissions) {
         for (size_t i = 0; i < c->account.default_permissions_len; i++)
             free(c->account.default_permissions[i]);
         free(c->account.default_permissions);
     }
 
-    /* server.debugWhitelist / Blacklist */
+    /* server.debug_whitelist / debug_blacklist */
     ae_int_set_free(c->server.debug_whitelist);
     ae_int_set_free(c->server.debug_blacklist);
 
-    /* server.http.policies.cors.allowedOrigins */
+    /* server.http.policies.cors.allowed_origins */
     if (c->server.http.policies.cors.allowed_origins) {
         for (size_t i = 0; i < c->server.http.policies.cors.allowed_origins_len; i++)
             free(c->server.http.policies.cors.allowed_origins[i]);
         free(c->server.http.policies.cors.allowed_origins);
     }
 
-    /* server.game.joinOptions.welcomeMail.items */
+    /* server.game.join_options.welcome_mail.items */
     free(c->server.game.join_options.welcome_mail.items);
 
     /* server.dispatch.regions */
     free(c->server.dispatch.regions);
 
-    /* server.dispatch.encryptionKey */
+    /* server.dispatch.encryption_key */
     free(c->server.dispatch.encryption_key);
 
     free(c);
@@ -263,7 +274,6 @@ void config_container_free(ae_config_t *c) {
 
 /* =========================================================================
  * config_container_update()
- * Mirrors ConfigContainer.updateConfig()
  * ====================================================================== */
 void config_container_update(ae_config_t *config) {
     /* Check for a legacy config (no "version" field in the JSON file) */
@@ -279,9 +289,11 @@ void config_container_update(ae_config_t *config) {
         return;
 
     /*
-     * Build an updated config: start from defaults then copy the live
-     * fields over the top, mirroring the reflection-based field copy.
-     * In C we do a shallow struct copy then fix up owned heap pointers.
+     * Build an updated config: start from defaults then copy the live,
+     * non-heap-owned fields over the top. Heap-owned fields intentionally
+     * stay as the fresh defaults set by config_container_create_default()
+     * -- see the two save/restore blocks below for the two fields where
+     * that requires extra care.
      */
     ae_config_t *updated = config_container_create_default();
     if (!updated) {
@@ -289,13 +301,6 @@ void config_container_update(ae_config_t *config) {
         return;
     }
 
-    /*
-     * Overwrite the default values with the existing config's values.
-     * Heap-owned fields (regions, encryption_key, cors origins, mail items,
-     * permissions) are intentionally left as the fresh defaults because
-     * a version migration may have changed their shape.
-     * Non-heap fields are copied wholesale.
-     */
     updated->folder_structure = config->folder_structure;
     updated->database_info    = config->database_info;
     updated->language         = config->language;
@@ -305,15 +310,49 @@ void config_container_update(ae_config_t *config) {
     updated->server.run_mode     = config->server.run_mode;
     updated->server.log_commands = config->server.log_commands;
     updated->server.fast_require = config->server.fast_require;
-    updated->server.http         = config->server.http;  /* shallow, pointers stay as defaults */
-    updated->server.game         = config->server.game;
+
+    /*
+     * updated->server.http = config->server.http would be a plain struct
+     * copy, which also copies the policies.cors.allowed_origins pointer
+     * nested inside it -- silently leaking updated's own freshly
+     * allocated origins array and making updated alias config's array.
+     * config_container_free(updated) below would then free memory that
+     * config (the live configuration this function was called with)
+     * still points to, leaving it dangling. Save updated's fresh
+     * allocation, do the convenient whole-struct copy for every other
+     * field in ae_cfg_http_t, then restore the fresh allocation over
+     * whatever the copy just aliased in.
+     */
+    char  **fresh_origins     = updated->server.http.policies.cors.allowed_origins;
+    size_t  fresh_origins_len = updated->server.http.policies.cors.allowed_origins_len;
+    updated->server.http = config->server.http;
+    updated->server.http.policies.cors.allowed_origins     = fresh_origins;
+    updated->server.http.policies.cors.allowed_origins_len = fresh_origins_len;
+
+    /*
+     * Same hazard, same fix, for server.game.join_options.welcome_mail.items
+     * nested inside ae_cfg_game_t.
+     */
+    ae_cfg_mail_item_t *fresh_items     = updated->server.game.join_options.welcome_mail.items;
+    size_t               fresh_items_len = updated->server.game.join_options.welcome_mail.items_len;
+    updated->server.game = config->server.game;
+    updated->server.game.join_options.welcome_mail.items     = fresh_items;
+    updated->server.game.join_options.welcome_mail.items_len = fresh_items_len;
+
     updated->server.dispatch.log_requests = config->server.dispatch.log_requests;
-    updated->server.debug_mode   = config->server.debug_mode;
-    updated->version             = latest;
+    updated->server.debug_mode            = config->server.debug_mode;
+    updated->version                      = latest;
 
     if (ae_save_config(updated) != AE_OK) {
         ae_logger_warn(ae_logger, "Failed to save the updated configuration.");
     } else {
+        /*
+         * Reloads the global ae_config from disk, freeing the previous
+         * global instance in the process -- which is the same object
+         * the caller passed in as 'config'. config is a dangling
+         * pointer for the remainder of this function as a result; it
+         * is not touched again below.
+         */
         ae_load_config();
     }
 
