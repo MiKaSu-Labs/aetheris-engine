@@ -1,13 +1,13 @@
 /*
- * 
- *           ______ _______ _    _ ______ _____  _____  _____ 
+ *
+ *           ______ _______ _    _ ______ _____  _____  _____
  *     /\   |  ____|__   __| |  | |  ____|  __ \|_   _|/ ____|
- *    /  \  | |__     | |  | |__| | |__  | |__) | | | | (___  
- *   / /\ \ |  __|    | |  |  __  |  __| |  _  /  | |  \___ \ 
+ *    /  \  | |__     | |  | |__| | |__  | |__) | | | | (___
+ *   / /\ \ |  __|    | |  |  __  |  __| |  _  /  | |  \___ \
  *  / ____ \| |____   | |  | |  | | |____| | \ \ _| |_ ____) |
- * /_/    \_\______|  |_|  |_|  |_|______|_|  \_\_____|_____/ 
- * 
- *                                                                                     v1.0
+ * /_/    \_\______|  |_|  |_|  |_|______|_|  \_\_____|_____/
+ *
+ *                                                             v1.0
  * @name Aetheris
  *
  * @author dkitagawa
@@ -33,12 +33,12 @@
 #include "file_utils.h"    /* ae_file_utils_get_resource_path  */
 
 /* =========================================================================
- * Alias globals — all populated by ae_configuration_init()
+ * Alias globals -- all populated by ae_configuration_init()
  * ====================================================================== */
 
 ae_config_t            *AE_C                = NULL;
 ae_language_config_t   *AE_LANGUAGE         = NULL;
-ae_language_config_t   *AE_FALLBACK_LANGUAGE = NULL;
+const char             *AE_FALLBACK_LANGUAGE = NULL;
 const char             *AE_DOCUMENT_LANGUAGE = NULL;
 ae_server_config_t     *AE_SERVER           = NULL;
 ae_database_config_t   *AE_DATABASE         = NULL;
@@ -56,7 +56,7 @@ ae_inventory_limits_t  *AE_INVENTORY_LIMITS  = NULL;
 ae_handbook_options_t  *AE_HANDBOOK         = NULL;
 bool                    AE_FAST_REQUIRE      = false;
 
-/* Folder paths, module-private, exposed here for path helpers */
+/* Folder paths; see the "module-private" note in configuration.h */
 const char *ae_cfg_data_folder    = NULL;
 const char *ae_cfg_plugins_folder = NULL;
 const char *ae_cfg_scripts_folder = NULL;
@@ -70,9 +70,7 @@ void ae_configuration_init(void) {
 
     AE_C                 = c;
     AE_LANGUAGE          = &c->language;
-    AE_FALLBACK_LANGUAGE = &c->language;        /* fallback sub-field — adjust
-                                                   once config_container.h
-                                                   separates language/fallback */
+    AE_FALLBACK_LANGUAGE = c->language.fallback;
     AE_DOCUMENT_LANGUAGE = c->language.document;
     AE_SERVER            = &c->server;
     AE_DATABASE          = &c->database_info;
@@ -106,7 +104,9 @@ const char *ae_cfg_data(char *out, size_t out_size) {
 }
 
 const char *ae_cfg_data_path(const char *path, char *out, size_t out_size) {
-    snprintf(out, out_size, "%s/%s", ae_cfg_data_folder, path);
+    int n = snprintf(out, out_size, "%s/%s", ae_cfg_data_folder, path);
+    if (n < 0 || (size_t)n >= out_size)
+        return NULL;
     return out;
 }
 
@@ -120,16 +120,22 @@ const char *ae_cfg_plugin(char *out, size_t out_size) {
 }
 
 const char *ae_cfg_plugin_path(const char *path, char *out, size_t out_size) {
-    snprintf(out, out_size, "%s/%s", ae_cfg_plugins_folder, path);
+    int n = snprintf(out, out_size, "%s/%s", ae_cfg_plugins_folder, path);
+    if (n < 0 || (size_t)n >= out_size)
+        return NULL;
     return out;
 }
 
 const char *ae_cfg_script(const char *path, char *out, size_t out_size) {
-    snprintf(out, out_size, "%s/%s", ae_cfg_scripts_folder, path);
+    int n = snprintf(out, out_size, "%s/%s", ae_cfg_scripts_folder, path);
+    if (n < 0 || (size_t)n >= out_size)
+        return NULL;
     return out;
 }
 
 const char *ae_cfg_packet(const char *path, char *out, size_t out_size) {
-    snprintf(out, out_size, "%s/%s", ae_cfg_packets_folder, path);
+    int n = snprintf(out, out_size, "%s/%s", ae_cfg_packets_folder, path);
+    if (n < 0 || (size_t)n >= out_size)
+        return NULL;
     return out;
 }
