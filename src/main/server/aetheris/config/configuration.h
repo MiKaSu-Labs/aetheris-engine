@@ -1,13 +1,13 @@
 /*
- * 
- *           ______ _______ _    _ ______ _____  _____  _____ 
+ *
+ *           ______ _______ _    _ ______ _____  _____  _____
  *     /\   |  ____|__   __| |  | |  ____|  __ \|_   _|/ ____|
- *    /  \  | |__     | |  | |__| | |__  | |__) | | | | (___  
- *   / /\ \ |  __|    | |  |  __  |  __| |  _  /  | |  \___ \ 
+ *    /  \  | |__     | |  | |__| | |__  | |__) | | | | (___
+ *   / /\ \ |  __|    | |  |  __  |  __| |  _  /  | |  \___ \
  *  / ____ \| |____   | |  | |  | | |____| | \ \ _| |_ ____) |
- * /_/    \_\______|  |_|  |_|  |_|______|_|  \_\_____|_____/ 
- * 
- *                                                                                     v1.0
+ * /_/    \_\______|  |_|  |_|  |_|______|_|  \_\_____|_____/
+ *
+ *                                                             v1.0
  * @name Aetheris
  *
  * @author dkitagawa
@@ -41,15 +41,26 @@ extern "C" {
 /* =========================================================================
  * Aliases into the live config
  *
- * These are pointers into ae_config, so they always reflect the current
- * runtime configuration even after a ae_force_reload().
- * Populated by ae_configuration_init(); call after ae_load_config().
+ * Each of these is a pointer set to point somewhere inside ae_config, so
+ * reading through them reflects the current runtime configuration --
+ * but only as of the last call to ae_configuration_init(). ALL_CAPS
+ * names here are this codebase's convention for these config aliases
+ * specifically; unlike a #define or a const, every one of them is a
+ * plain mutable extern pointer that gets re-pointed on each call.
+ *
+ * @warning Every alias below becomes a dangling pointer if ae_config is
+ * ever replaced (by ae_load_config() or config_container_update()
+ * succeeding) without a following call to ae_configuration_init(). Both
+ * existing call sites that can replace ae_config (ae_init() and
+ * ae_force_reload()) already call ae_configuration_init() immediately
+ * afterward; any new code path that reloads the configuration must do
+ * the same.
  * ====================================================================== */
 
 /* Top-level aliases */
 extern ae_config_t            *AE_C;              /* 'c' - short for config   */
 extern ae_language_config_t   *AE_LANGUAGE;
-extern ae_language_config_t   *AE_FALLBACK_LANGUAGE;
+extern const char             *AE_FALLBACK_LANGUAGE;
 extern const char             *AE_DOCUMENT_LANGUAGE;
 extern ae_server_config_t     *AE_SERVER;
 extern ae_database_config_t   *AE_DATABASE;
@@ -64,7 +75,7 @@ extern ae_game_config_t       *AE_GAME_INFO;
 /* server.dispatch */
 extern ae_dispatch_config_t   *AE_DISPATCH_INFO;
 
-/* server.debugMode */
+/* server.debug_mode */
 extern ae_debug_mode_config_t *AE_DEBUG_MODE_INFO;
 
 /* server.http.encryption */
@@ -76,20 +87,24 @@ extern ae_policies_config_t   *AE_HTTP_POLICIES;
 /* server.http.files */
 extern ae_files_config_t      *AE_HTTP_STATIC_FILES;
 
-/* server.game.gameOptions */
+/* server.game.game_options */
 extern ae_game_options_t      *AE_GAME_OPTIONS;
 
-/* server.game.gameOptions.inventoryLimits */
+/* server.game.game_options.inventory_limits */
 extern ae_inventory_limits_t  *AE_INVENTORY_LIMITS;
 
-/* server.game.gameOptions.handbook */
+/* server.game.game_options.handbook */
 extern ae_handbook_options_t  *AE_HANDBOOK;
 
-/* server.fastRequire */
+/* server.fast_require */
 extern bool                    AE_FAST_REQUIRE;
 
 /*
- * module-private globals; accessed only through the path helpers below. */
+ * Folder-path globals. Not compiler-enforced private (they're extern,
+ * so anything including this header can see them) -- "module-private"
+ * here means a convention: read the current folder paths through the
+ * ae_cfg_* path helpers below rather than these directly.
+ */
 extern const char *ae_cfg_data_folder;
 extern const char *ae_cfg_plugins_folder;
 extern const char *ae_cfg_scripts_folder;
@@ -100,26 +115,44 @@ extern const char *ae_cfg_packets_folder;
  * ====================================================================== */
 
 /**
- * ae_configuration_init()
- * Populates all alias pointers from the live ae_config.
- * Must be called after ae_load_config() (and again after ae_force_reload()).
+ * @brief Populate every alias above from the live ae_config.
+ *
+ * Must be called once after ae_load_config() first succeeds, and again
+ * after anything that may replace the global ae_config pointer (see the
+ * warning on the aliases above) -- currently ae_init() and
+ * ae_force_reload().
+ *
+ * Reads the global ae_config, which must already be non-NULL (i.e.
+ * ae_load_config() must have already succeeded at least once); calling
+ * this before that is a precondition violation, not a checked error.
+ *
+ * Not thread-safe. Call from the main thread only.
  */
 void ae_configuration_init(void);
 
 /* =========================================================================
  * Path helpers
  *
- * Each function writes the result into `out` (size `out_size`) and returns
- * `out` for convenience.
+ * Each function writes the result into `out` (size `out_size`) and
+ * returns `out` on success. `out` must not be NULL. `out_size` of 0 is
+ * a well-defined no-op (nothing is written; inherited directly from
+ * snprintf's own standard-mandated behavior for a 0 size).
  *
- * The @Deprecated originals are preserved so existing call-sites compile;
+ * The functions that combine a folder with `path` (ae_cfg_data_path,
+ * ae_cfg_plugin_path, ae_cfg_script, ae_cfg_packet) return NULL instead
+ * of `out` if the combined result would not fit in `out_size` -- check
+ * the return value; a truncated path can point at the wrong file.
+ *
+ * The lowercase @deprecated tags below are Doxygen's own deprecation
+ * marker, not a claim about any other language. These deprecated
+ * originals are kept only so existing call sites keep compiling;
  * prefer ae_file_utils_get_resource_path() for new code.
  * ====================================================================== */
 
 /** @deprecated - use ae_config directly. Returns data folder root. */
 const char *ae_cfg_data(char *out, size_t out_size);
 
-/** @deprecated - joins data folder with `path`. */
+/** @deprecated - joins data folder with `path`. NULL on truncation. */
 const char *ae_cfg_data_path(const char *path, char *out, size_t out_size);
 
 /** @deprecated - resolves a resource path via file_utils. */
@@ -128,19 +161,23 @@ const char *ae_cfg_resource(const char *path, char *out, size_t out_size);
 /** Returns plugins folder root. */
 const char *ae_cfg_plugin(char *out, size_t out_size);
 
-/** Joins plugins folder with `path`. */
+/** Joins plugins folder with `path`. NULL on truncation. */
 const char *ae_cfg_plugin_path(const char *path, char *out, size_t out_size);
 
-/** @deprecated - joins scripts folder with `path`. */
+/** @deprecated - joins scripts folder with `path`. NULL on truncation. */
 const char *ae_cfg_script(const char *path, char *out, size_t out_size);
 
-/** @deprecated - joins packets folder with `path`. */
+/** @deprecated - joins packets folder with `path`. NULL on truncation. */
 const char *ae_cfg_packet(const char *path, char *out, size_t out_size);
 
 /* =========================================================================
  * lr() fallback helpers
  *
- * Returns `left` if it is non-null / non-empty / non-zero, else `right`.
+ * Each returns `left` if it is "present" (non-NULL / non-empty /
+ * non-zero, per type), else `right` -- with no guarantee `right` itself
+ * is present. Because 0 means "absent" for ae_lr_int, it is not a safe
+ * fallback pattern for a field where 0 is itself a meaningful value
+ * (e.g. a count that may legitimately be zero).
  * ====================================================================== */
 
 /** Generic pointer fallback: returns left if non-NULL, else right. */
