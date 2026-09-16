@@ -13,15 +13,22 @@ CC      ?= gcc
 AR      ?= ar
 CFLAGS  ?= -std=c11 -Wall -Wextra -Wpedantic -Wshadow \
            -Wconversion -Wsign-conversion -Wundef -g -O2
-CPPFLAGS += -Iinclude -Itests
+CPPFLAGS += -Iinclude -Itests -Ithird_party/cJSON
 LDFLAGS ?=
+
+# The crypto module draws CSPRNG bytes from BCrypt on Windows and from
+# getrandom() elsewhere. Link the system library only where needed.
+ifeq ($(OS),Windows_NT)
+LDFLAGS += -lbcrypt
+endif
 
 BUILD    := build
 BUILDDIR := $(BUILD)/obj
 LIB      := $(BUILD)/libaetheris.a
 
-SRCS := $(wildcard src/*.c)
-OBJS := $(SRCS:src/%.c=$(BUILDDIR)/%.o)
+SRCS := $(wildcard src/*.c third_party/cJSON/cJSON.c)
+OBJS := $(patsubst %.c,$(BUILDDIR)/%.o,$(notdir $(SRCS)))
+VPATH := src third_party/cJSON
 
 TESTS_SRC := $(wildcard tests/test_*.c)
 TESTS_BIN := $(TESTS_SRC:tests/%.c=$(BUILD)/%)
@@ -33,7 +40,7 @@ all: $(LIB)
 $(LIB): $(OBJS)
 	$(AR) rcs $@ $^
 
-$(BUILDDIR)/%.o: src/%.c | $(BUILDDIR)
+$(BUILDDIR)/%.o: %.c | $(BUILDDIR)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 $(BUILD)/%: tests/%.c $(LIB) tests/ae_test.c | $(BUILD)
