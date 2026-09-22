@@ -59,6 +59,7 @@ typedef enum ae_resource_load_priority {
     AE_RESOURCE_LOAD_PRIORITY_HIGHEST = 4,
 } ae_resource_load_priority_t;
 
+/**
  * ae_resource_load_priority_from_value - map a numeric priority.
  * @value: priority number.
  *
