@@ -9,8 +9,10 @@
 #   test    - build and run all tests under tests/
 #   clean   - remove the build directory
 
-CC      ?= gcc
-AR      ?= ar
+# Compiler toolchain. GNU make's built-in default is `cc`, but MSYS2 ships
+# gcc.exe (no `cc` driver), so pin the exact binaries the recipes rely on.
+CC := gcc
+AR := ar
 CFLAGS  ?= -std=c11 -Wall -Wextra -Wpedantic -Wshadow \
            -Wconversion -Wsign-conversion -Wundef -g -O2
 CPPFLAGS += -Iinclude -Itests -Ithird_party/cJSON
