@@ -21,9 +21,12 @@
 config.json
 keys/
 
-# Test suite and fixtures must stay tracked even if a parent repo ignores
-# generic source/data files (e.g. *.json, *.tsv, tests/, test_resources/).
+# Test suite, fixtures, and docs must stay tracked even if a parent repo
+# ignores generic source/data files (e.g. *.json, *.tsv, *.md, tests/,
+# test_resources/, docs/).
 !tests/
 !tests/**
 !test_resources/
 !test_resources/**
+!docs/
+!docs/**
