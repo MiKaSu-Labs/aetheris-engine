@@ -19,7 +19,7 @@ status of the Original Project while allowing limited distribution
 and modification under strict conditions.
 
   The Original Project is named "Aetheris Engine" and is licensed under DRPL
-v1.1.  The DRPL ensures that all users retain the freedom to study
+v1.2.  The DRPL ensures that all users retain the freedom to study
 and modify the project, while preventing commercial exploitation,
 reimplementation in other languages, or misrepresentation of
 project identity.
@@ -70,7 +70,10 @@ the full corresponding source code at no cost.
     based on this project
 
   This applies even if the code is rewritten from scratch or only
-the architecture, logic, or design is reused.
+the architecture, logic, or design is reused. This Section does not
+restrict a hosting platform provider's non-expressive processing of
+the software, such as indexing, search, or analysis, performed in the
+ordinary operation of its service.
 
   5. Forks and Derivative Works.
 
@@ -133,5 +136,36 @@ granted rights.
   11. Disclaimer of Warranty.
 
   THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
+
+  12. Platform and Hosting Services.
+
+  The Original Project may be published on public software-hosting
+platforms, including GitHub, Inc. and its affiliates. Such publication
+is expressly permitted by the Author.
+
+  Publication on such a platform is subject to that platform's terms of
+service, which are an agreement between the Author (or any other
+publisher) and the platform provider, separate from and independent
+of this license. This license neither grants nor limits those
+platform rights. In particular, a platform provider's rights under
+its own terms of service, including rights to store, host, archive,
+parse, display, index, back up, share, render-adapt, fork, and train
+or improve artificial-intelligence and machine-learning models, arise
+from those terms and are not governed, restricted, or expanded by
+this license.
+
+  A fork created through a hosting platform's ordinary forking feature
+is a distribution permitted under Section 5 and remains subject to
+Section 5's conditions. The platform's storage, display, and hosting
+of such a fork are not themselves prohibited by this license.
+
+  The hosting platform has no obligation to monitor, police, or enforce
+this license. Enforcement of Sections 2, 4, and 9 against third
+parties is the responsibility of the Author and the licensees between
+themselves, subject to applicable law and the platform's own
+policies, including its copyright-takedown process. The Author will
+not assert moral rights under Sections 6 and 7 against a hosting
+platform provider for reasonable technical adaptations necessary to
+render and provide its service.
 
                            END OF LICENSE
