@@ -1,0 +1,171 @@
+                  DK’S RESTRICTED PUBLIC LICENSE
+                        Version 1.2, 2026
+
+ Copyright (C) 2026 Douglas Kitagawa
+ Aliases: DK, DKitagawa, dkitagawa, sdkitagawa, jdkitagawa, snkitagawa, Kitbit, Kitbitdots, M4KoTo, shellTeMP, NEOCYON, PhnX, PhNyX, SAKK, SAKXE,
+          Auriga, aamiaa, Freyja, Mjolnir, Vindrn, Iryndr, Aeris, Äerith, Erisia, Tyr, Orzeas, Orzins, Zaneth, Rooflez, RoVeRT, Keny, Sirius_White,
+          Nyxel, Noxist, Valaris, Valkyrja, Tsuyuki, ヴァルキリー, ルーナフレイア, ルーナフレーナ, 0xRok0n
+
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+                            Preamble
+
+  The DK Restricted Public License (DRPL) is a custom, restrictive
+license inspired by the GNU General Public License v3.  It is NOT
+the GNU GPL and MUST NOT be referred to as such.  This license
+is intended to protect the identity, integrity, and non-commercial
+status of the Original Project while allowing limited distribution
+and modification under strict conditions.
+
+  The Original Project is named "Aetheris Engine" and is licensed under DRPL
+v1.2.  The DRPL ensures that all users retain the freedom to study
+and modify the project, while preventing commercial exploitation,
+reimplementation in other languages, or misrepresentation of
+project identity.
+
+                       TERMS AND CONDITIONS
+
+  1. Definitions.
+
+  "Original Project" refers to the software distributed under this license.
+
+  "Modified Version" refers to any altered, forked, extended, or
+derivative work.
+
+  "Language" refers to the primary programming language(s) used in
+the Original Project.
+
+  "Commercial Use" includes any activity intended for monetary
+gain, direct or indirect.
+
+  2. Non-Commercial Restriction.
+
+  This software and any Modified Version may NOT be used for
+Commercial Use.  This includes, but is not limited to:
+
+  - Selling the software
+  - Offering paid services based on it
+  - SaaS or hosted solutions with monetization
+  - Bundling into paid products
+  - Indirect monetization derived from the software
+
+  Companies and organizations MAY use this software internally,
+provided that no commercial benefit is derived and it is not
+exposed as a paid or monetized service.
+
+  3. Network Use (Mandatory Source Disclosure).
+
+  If the software or any Modified Version is made available over
+a network, all users interacting with it MUST be able to access
+the full corresponding source code at no cost.
+
+  4. Language and Reimplementation Restriction.
+
+  You may NOT:
+
+  - Translate, port, rewrite, or reimplement this project into
+    another programming language
+  - Create a functionally equivalent system in another language
+    based on this project
+
+  This applies even if the code is rewritten from scratch or only
+the architecture, logic, or design is reused. This Section does not
+restrict a hosting platform provider's non-expressive processing of
+the software, such as indexing, search, or analysis, performed in the
+ordinary operation of its service.
+
+  5. Forks and Derivative Works.
+
+  Forks and modifications are permitted ONLY under the following
+mandatory conditions:
+
+  - The original project name MUST be retained as part of the name
+  - Modifications MUST be clearly indicated
+  - The original authors MUST be prominently credited
+  - This license MUST remain fully intact and unchanged
+
+  Forks may NOT:
+
+  - Rebrand the project as an unrelated or independent product
+  - Remove project identity, purpose, or attribution
+
+  6. Project Identity Protection.
+
+  You may NOT:
+
+  - Change the core identity, purpose, or conceptual direction of
+    the project in a way that misrepresents it as a different
+    original work
+  - Replace branding, documentation, or structure to obscure its origin
+
+  Derivative works MUST clearly state:
+  "This project is based on the original work: Douglas Kitagawa"
+
+  7. Attribution Requirements.
+
+  All distributions MUST:
+
+  - Retain all copyright notices
+  - Provide visible attribution to original author(s)
+  - Include a reference to the original source repository (if available)
+
+  8. Contributions (Mandatory CLA).
+
+  By contributing to this project, you agree that:
+
+  - You grant the original author a perpetual, irrevocable, worldwide
+    right to use, modify, and relicense your contribution
+  - You have the legal authority to submit the contribution
+
+  All contributions are automatically licensed under this license.
+
+  9. No Proprietary or Commercial Relicensing.
+
+  You may NOT:
+
+  - Re-license this software under proprietary terms
+  - Incorporate it into commercial or closed-source systems
+  - Sell or monetize any derivative of this project
+
+  10. Enforcement and Termination.
+
+  Any violation of this license immediately terminates all
+granted rights.
+
+  11. Disclaimer of Warranty.
+
+  THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
+
+  12. Platform and Hosting Services.
+
+  The Original Project may be published on public software-hosting
+platforms, including GitHub, Inc. and its affiliates. Such publication
+is expressly permitted by the Author.
+
+  Publication on such a platform is subject to that platform's terms of
+service, which are an agreement between the Author (or any other
+publisher) and the platform provider, separate from and independent
+of this license. This license neither grants nor limits those
+platform rights. In particular, a platform provider's rights under
+its own terms of service, including rights to store, host, archive,
+parse, display, index, back up, share, render-adapt, fork, and train
+or improve artificial-intelligence and machine-learning models, arise
+from those terms and are not governed, restricted, or expanded by
+this license.
+
+  A fork created through a hosting platform's ordinary forking feature
+is a distribution permitted under Section 5 and remains subject to
+Section 5's conditions. The platform's storage, display, and hosting
+of such a fork are not themselves prohibited by this license.
+
+  The hosting platform has no obligation to monitor, police, or enforce
+this license. Enforcement of Sections 2, 4, and 9 against third
+parties is the responsibility of the Author and the licensees between
+themselves, subject to applicable law and the platform's own
+policies, including its copyright-takedown process. The Author will
+not assert moral rights under Sections 6 and 7 against a hosting
+platform provider for reasonable technical adaptations necessary to
+render and provide its service.
+
+                           END OF LICENSE
