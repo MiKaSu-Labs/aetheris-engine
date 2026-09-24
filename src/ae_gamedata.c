@@ -656,6 +656,14 @@ static ae_item_entry_t *g_slots;
 static ae_size g_slot_capacity;
 static ae_size g_item_count;
 
+static ae_reliquary_main_prop_t *g_relic_main_props;
+static ae_size g_relic_main_capacity;
+static ae_size g_relic_main_count;
+
+static ae_reliquary_affix_t *g_relic_affixes;
+static ae_size g_relic_affix_capacity;
+static ae_size g_relic_affix_count;
+
 static ae_size item_slot_index(ae_u32 key, ae_size capacity)
 {
     ae_u32 hash = key * 2654435761u;
@@ -774,6 +782,9 @@ ae_error_t ae_gamedata_init(void)
     }
     g_slot_capacity = AE_ITEM_MAP_INIT_CAPACITY;
     g_item_count = 0;
+
+    g_relic_main_count = 0;
+    g_relic_affix_count = 0;
     return AE_OK;
 }
 
@@ -787,9 +798,17 @@ void ae_gamedata_destroy(void)
         }
         free(g_slots);
     }
+    free(g_relic_main_props);
+    free(g_relic_affixes);
     g_slots = NULL;
     g_slot_capacity = 0;
     g_item_count = 0;
+    g_relic_main_props = NULL;
+    g_relic_main_capacity = 0;
+    g_relic_main_count = 0;
+    g_relic_affixes = NULL;
+    g_relic_affix_capacity = 0;
+    g_relic_affix_count = 0;
 }
 
 const ae_item_data_t *ae_gamedata_get_item(ae_u32 id)
@@ -800,6 +819,174 @@ const ae_item_data_t *ae_gamedata_get_item(ae_u32 id)
 ae_size ae_gamedata_item_count(void)
 {
     return g_item_count;
+}
+
+/* ============================================================ */
+/* Reliquary prop registries                                    */
+/* ============================================================ */
+
+ae_error_t ae_gamedata_reliquary_main_prop_from_json(
+    const cJSON *object, ae_reliquary_main_prop_t *out_data)
+{
+    if (!object || !out_data) {
+        return AE_ERR_INVALID_ARG;
+    }
+    memset(out_data, 0, sizeof(*out_data));
+    out_data->id = (ae_u32)get_s32(object, "id", 0);
+    out_data->prop_depot_id = get_s32(object, "propDepotId", 0);
+    out_data->fight_prop = ae_fight_prop_from_name(
+        get_string_or_default(object, "propType", NULL));
+    out_data->weight = get_s32(object, "weight", 0);
+    return AE_OK;
+}
+
+ae_error_t ae_gamedata_reliquary_affix_from_json(
+    const cJSON *object, ae_reliquary_affix_t *out_data)
+{
+    if (!object || !out_data) {
+        return AE_ERR_INVALID_ARG;
+    }
+    memset(out_data, 0, sizeof(*out_data));
+    out_data->id = (ae_u32)get_s32(object, "id", 0);
+    out_data->depot_id = get_s32(object, "depotId", 0);
+    out_data->group_id = get_s32(object, "groupId", 0);
+    out_data->fight_prop = ae_fight_prop_from_name(
+        get_string_or_default(object, "propType", NULL));
+    out_data->prop_value = get_f32(object, "propValue", 0.0f);
+    out_data->weight = get_s32(object, "weight", 0);
+    out_data->upgrade_weight = get_s32(object, "upgradeWeight", 0);
+    return AE_OK;
+}
+
+/* ============================================================ */
+
+static ae_error_t relic_main_prop_append(
+    const ae_reliquary_main_prop_t *data)
+{
+    if (g_relic_main_count == g_relic_main_capacity) {
+        ae_size new_capacity =
+            g_relic_main_capacity ? g_relic_main_capacity * 2u : 64u;
+        ae_size bytes;
+        ae_reliquary_main_prop_t *grown;
+
+        if (!ae_mul_overflow_uz(new_capacity, sizeof(*grown), &bytes)) {
+            return AE_ERR_OVERFLOW;
+        }
+        grown = (ae_reliquary_main_prop_t *)realloc(g_relic_main_props,
+                                                    bytes);
+        if (!grown) {
+            return AE_ERR_OUT_OF_MEMORY;
+        }
+        g_relic_main_props = grown;
+        g_relic_main_capacity = new_capacity;
+    }
+    g_relic_main_props[g_relic_main_count++] = *data;
+    return AE_OK;
+}
+
+static ae_error_t relic_affix_append(const ae_reliquary_affix_t *data)
+{
+    if (g_relic_affix_count == g_relic_affix_capacity) {
+        ae_size new_capacity =
+            g_relic_affix_capacity ? g_relic_affix_capacity * 2u : 64u;
+        ae_size bytes;
+        ae_reliquary_affix_t *grown;
+
+        if (!ae_mul_overflow_uz(new_capacity, sizeof(*grown), &bytes)) {
+            return AE_ERR_OVERFLOW;
+        }
+        grown = (ae_reliquary_affix_t *)realloc(g_relic_affixes, bytes);
+        if (!grown) {
+            return AE_ERR_OUT_OF_MEMORY;
+        }
+        g_relic_affixes = grown;
+        g_relic_affix_capacity = new_capacity;
+    }
+    g_relic_affixes[g_relic_affix_count++] = *data;
+    return AE_OK;
+}
+
+static ae_error_t parse_reliquary_main_prop(const cJSON *object, void *user)
+{
+    ae_reliquary_main_prop_t data;
+    ae_error_t err;
+
+    (void)user;
+    err = ae_gamedata_reliquary_main_prop_from_json(object, &data);
+    if (err != AE_OK) {
+        return err;
+    }
+    return relic_main_prop_append(&data);
+}
+
+static ae_error_t parse_reliquary_affix(const cJSON *object, void *user)
+{
+    ae_reliquary_affix_t data;
+    ae_error_t err;
+
+    (void)user;
+    err = ae_gamedata_reliquary_affix_from_json(object, &data);
+    if (err != AE_OK) {
+        return err;
+    }
+    return relic_affix_append(&data);
+}
+
+/* ============================================================ */
+
+const ae_reliquary_main_prop_t *ae_gamedata_get_reliquary_main_prop(
+    ae_u32 id)
+{
+    for (ae_size i = 0; i < g_relic_main_count; i++) {
+        if (g_relic_main_props[i].id == id) {
+            return &g_relic_main_props[i];
+        }
+    }
+    return NULL;
+}
+
+const ae_reliquary_affix_t *ae_gamedata_get_reliquary_affix(ae_u32 id)
+{
+    for (ae_size i = 0; i < g_relic_affix_count; i++) {
+        if (g_relic_affixes[i].id == id) {
+            return &g_relic_affixes[i];
+        }
+    }
+    return NULL;
+}
+
+ae_size ae_gamedata_reliquary_main_prop_count(void)
+{
+    return g_relic_main_count;
+}
+
+ae_size ae_gamedata_reliquary_affix_count(void)
+{
+    return g_relic_affix_count;
+}
+
+void ae_gamedata_for_each_reliquary_main_prop(
+    void (*fn)(const ae_reliquary_main_prop_t *data, void *user),
+    void *user)
+{
+    if (!fn) {
+        return;
+    }
+    for (ae_size i = 0; i < g_relic_main_count; i++) {
+        fn(&g_relic_main_props[i], user);
+    }
+}
+
+void ae_gamedata_for_each_reliquary_affix(
+    void (*fn)(const ae_reliquary_affix_t *data, void *user),
+    void *user)
+{
+    if (!fn) {
+        return;
+    }
+    for (ae_size i = 0; i < g_relic_affix_count; i++) {
+        fn(&g_relic_affixes[i], user);
+    }
 }
 
 /* ============================================================ */
@@ -839,9 +1026,48 @@ static const ae_resource_def_t k_item_resource_def = {
     .load = ae_gamedata_load_item_excel,
 };
 
+static const char *const k_relic_main_prop_filenames[] = {
+    "ReliquaryMainPropExcelConfigData.json",
+};
+
+static const ae_resource_def_t k_relic_main_prop_resource_def = {
+    .type_name = "ReliquaryMainPropData",
+    .priority = AE_RESOURCE_LOAD_PRIORITY_NORMAL,
+    .filenames = k_relic_main_prop_filenames,
+    .filename_count = AE_ARRAY_SIZE(k_relic_main_prop_filenames),
+    .load = ae_gamedata_load_reliquary_main_prop_excel,
+};
+
+static const char *const k_relic_affix_filenames[] = {
+    "ReliquaryAffixExcelConfigData.json",
+};
+
+static const ae_resource_def_t k_relic_affix_resource_def = {
+    .type_name = "ReliquaryAffixData",
+    .priority = AE_RESOURCE_LOAD_PRIORITY_NORMAL,
+    .filenames = k_relic_affix_filenames,
+    .filename_count = AE_ARRAY_SIZE(k_relic_affix_filenames),
+    .load = ae_gamedata_load_reliquary_affix_excel,
+};
+
 ae_error_t ae_gamedata_register_all(void)
 {
-    return ae_resource_loader_register(&k_item_resource_def);
+    ae_error_t first_err = AE_OK;
+    ae_error_t err;
+
+    err = ae_resource_loader_register(&k_item_resource_def);
+    if (err != AE_OK) {
+        first_err = err;
+    }
+    err = ae_resource_loader_register(&k_relic_main_prop_resource_def);
+    if (err != AE_OK && first_err == AE_OK) {
+        first_err = err;
+    }
+    err = ae_resource_loader_register(&k_relic_affix_resource_def);
+    if (err != AE_OK && first_err == AE_OK) {
+        first_err = err;
+    }
+    return first_err;
 }
 
 ae_error_t ae_gamedata_load_item_excel(const char *resources_dir,
@@ -855,6 +1081,43 @@ ae_error_t ae_gamedata_load_item_excel(const char *resources_dir,
     for (ae_size i = 0; i < def->filename_count; i++) {
         ae_error_t err = ae_resource_loader_load_json_array(
             resources_dir, def->filenames[i], parse_item, NULL);
+        if (err != AE_OK && first_err == AE_OK) {
+            first_err = err;
+        }
+    }
+    return first_err;
+}
+
+ae_error_t ae_gamedata_load_reliquary_main_prop_excel(
+    const char *resources_dir, const struct ae_resource_def *def)
+{
+    ae_error_t first_err = AE_OK;
+
+    if (!def) {
+        return AE_ERR_INVALID_ARG;
+    }
+    for (ae_size i = 0; i < def->filename_count; i++) {
+        ae_error_t err = ae_resource_loader_load_json_array(
+            resources_dir, def->filenames[i], parse_reliquary_main_prop,
+            NULL);
+        if (err != AE_OK && first_err == AE_OK) {
+            first_err = err;
+        }
+    }
+    return first_err;
+}
+
+ae_error_t ae_gamedata_load_reliquary_affix_excel(
+    const char *resources_dir, const struct ae_resource_def *def)
+{
+    ae_error_t first_err = AE_OK;
+
+    if (!def) {
+        return AE_ERR_INVALID_ARG;
+    }
+    for (ae_size i = 0; i < def->filename_count; i++) {
+        ae_error_t err = ae_resource_loader_load_json_array(
+            resources_dir, def->filenames[i], parse_reliquary_affix, NULL);
         if (err != AE_OK && first_err == AE_OK) {
             first_err = err;
         }
