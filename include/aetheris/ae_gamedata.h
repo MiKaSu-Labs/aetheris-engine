@@ -181,6 +181,86 @@ ae_bool ae_gamedata_item_is_equip(const ae_item_data_t *item);
 ae_bool ae_gamedata_item_can_add_relic_prop(const ae_item_data_t *item,
                                             ae_s32 level);
 
+/*
+ * Reliquary main-property data, mirrors ReliquaryMainPropData. A
+ * property line lists the base stat a relic can roll and how often
+ * the depot picks it.
+ */
+typedef struct ae_reliquary_main_prop {
+    ae_u32 id;
+    ae_s32 prop_depot_id;
+    ae_fight_prop_t fight_prop;
+    ae_s32 weight;
+} ae_reliquary_main_prop_t;
+
+/*
+ * Reliquary sub-stat data, mirrors ReliquaryAffixData. One row is one
+ * candidate append stat; the upgrade weight weights a re-roll of an
+ * existing stat.
+ */
+typedef struct ae_reliquary_affix {
+    ae_u32 id;
+    ae_s32 depot_id;
+    ae_s32 group_id;
+    ae_fight_prop_t fight_prop;
+    float prop_value;
+    ae_s32 weight;
+    ae_s32 upgrade_weight;
+} ae_reliquary_affix_t;
+
+/**
+ * ae_gamedata_reliquary_main_prop_from_json - parse one excel element.
+ * @object: cJSON value from ReliquaryMainPropExcelConfigData.
+ * @out_data: receives the parsed property; zeroed first.
+ */
+ae_error_t ae_gamedata_reliquary_main_prop_from_json(
+    const cJSON *object, ae_reliquary_main_prop_t *out_data);
+
+/**
+ * ae_gamedata_reliquary_affix_from_json - parse one excel element.
+ * @object: cJSON value from ReliquaryAffixExcelConfigData.
+ * @out_data: receives the parsed affix; zeroed first.
+ */
+ae_error_t ae_gamedata_reliquary_affix_from_json(
+    const cJSON *object, ae_reliquary_affix_t *out_data);
+
+/**
+ * ae_gamedata_get_reliquary_main_prop - main-prop lookup by id.
+ */
+const ae_reliquary_main_prop_t *ae_gamedata_get_reliquary_main_prop(
+    ae_u32 id);
+
+/**
+ * ae_gamedata_get_reliquary_affix - affix lookup by id.
+ */
+const ae_reliquary_affix_t *ae_gamedata_get_reliquary_affix(ae_u32 id);
+
+/**
+ * ae_gamedata_reliquary_main_prop_count - number of parsed props.
+ */
+ae_size ae_gamedata_reliquary_main_prop_count(void);
+
+/**
+ * ae_gamedata_reliquary_affix_count - number of parsed affixes.
+ */
+ae_size ae_gamedata_reliquary_affix_count(void);
+
+/**
+ * ae_gamedata_for_each_reliquary_main_prop - visit all parsed props.
+ * @fn: visitor, may be NULL for a pure count.
+ * @user: context passed to every visitor call.
+ */
+void ae_gamedata_for_each_reliquary_main_prop(
+    void (*fn)(const ae_reliquary_main_prop_t *data, void *user),
+    void *user);
+
+/**
+ * ae_gamedata_for_each_reliquary_affix - visit all parsed affixes.
+ */
+void ae_gamedata_for_each_reliquary_affix(
+    void (*fn)(const ae_reliquary_affix_t *data, void *user),
+    void *user);
+
 /**
  * ae_gamedata_init - initialise the gamedata registries.
  *
@@ -227,6 +307,26 @@ ae_error_t ae_gamedata_register_all(void);
  */
 ae_error_t ae_gamedata_load_item_excel(const char *resources_dir,
                                        const struct ae_resource_def *def);
+
+/**
+ * ae_gamedata_load_reliquary_main_prop_excel - load the depot excel.
+ * @resources_dir: base directory of the resource tree.
+ * @def: definition describing the reliquary main-prop excel to load.
+ *
+ * Resource-definition loader for the reliquary main-prop registry.
+ */
+ae_error_t ae_gamedata_load_reliquary_main_prop_excel(
+    const char *resources_dir, const struct ae_resource_def *def);
+
+/**
+ * ae_gamedata_load_reliquary_affix_excel - load the affix excel.
+ * @resources_dir: base directory of the resource tree.
+ * @def: definition describing the reliquary affix excel to load.
+ *
+ * Resource-definition loader for the reliquary affix registry.
+ */
+ae_error_t ae_gamedata_load_reliquary_affix_excel(
+    const char *resources_dir, const struct ae_resource_def *def);
 
 /* ============================================================ */
 
